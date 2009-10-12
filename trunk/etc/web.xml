@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<web-app xmlns="http://java.sun.com/xml/ns/javaee"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+   version="2.5"> 
+
+    <description>
+      Simple Deceptive Detection Frontier Finder front end
+    </description>
+    <display-name>Deceptive Detection Frontier Finder</display-name>
+
+    <servlet>
+      <servlet-name>GraphServlet</servlet-name>
+      <description>
+        This servlet generates SVG, JPEG, or PNG output to be inserted
+	into the page
+      </description>
+      <servlet-class>dd.web.GraphServlet</servlet-class>
+      <!-- Load this servlet at server startup time -->
+      <load-on-startup>1</load-on-startup>
+    </servlet>
+
+    <servlet-mapping>
+      <servlet-name>GraphServlet</servlet-name>
+      <url-pattern>/GraphServlet</url-pattern>
+    </servlet-mapping>
+
+
+
+
+
+</web-app>

@@ -1,0 +1,342 @@
+<!-- A "project" describes a set of targets that may be requested
+     when Ant is executed.  The "default" attribute defines the
+     target which is executed if no specific target is requested,
+     and the "basedir" attribute defines the current working directory
+     from which Ant executes the requested task.  This is normally
+     set to the current working directory.
+-->
+
+
+<project name="DeceptiveDetectionFrontierFinder" default="compile" basedir=".">
+
+
+<!-- Property Definitions
+
+     Each of the following properties are used by convention in this
+     build file.  The values specified can be overridden at run time by
+     adding a "-Dname=value" argument to the command line that invokes Ant.
+     This technique is normally used to copy the values of the ANT_HOME
+     and TOMCAT_HOME environment variables into the "ant.home" and
+     "tomcat.home" properties, which are normally not defined explicitly.
+
+     app.name          Base name of this application, used to
+                       construct filenames and directories.
+
+     deploy.home       The name of the directory into which the
+                       deployment hierarchy will be created.
+                       Normally, this will be the name of a
+                       subdirectory under $TOMCAT_HOME/webapps.
+
+     dist.home         The name of the base directory in which
+                       distribution files are created.
+
+     dist.src          The name of the distribution JAR file
+                       containing the application source code,
+                       to be stored in the "dist.home" directory.
+                       This filename should end with ".jar".
+
+     dist.war          The name of the Web ARchive (WAR) file
+                       containing our deployable application.
+                       This filename should end with ".war".
+
+     javadoc.home      The name of the base directory in which
+                       the JavaDoc documentation for this application
+                       is generated.
+
+     tomcat.home       The name of the base directory in which
+                       Tomcat has been installed.  This value is
+                       normally set automatically from the value
+                       of the TOMCAT_HOME environment variable.
+
+     The application being developed will be deployed
+     to a subdirectory named "isatc", and will therefore be accessible at:
+
+       http://localhost:8080/isatc
+-->
+
+  <!-- where tomcat is. You don't need this property at all if you have
+       $TOMCAT_HOME set. [VM] -->
+
+  <property name="tomcat.home.rutgers"  value="/www/snsrtree.rutgers.edu" />
+  <!-- property name="tomcat.home"     value="/usr/local/tomcat"/ -->  
+
+  <condition property="tomcat.home" value="${tomcat.home.rutgers}" else="/usr/local/tomcat">
+  <available file="${tomcat.home.rutgers}"/>
+  </condition>
+
+
+
+  <!-- property name="tomcat.home"     value="/www/snsrtree.rutgers.edu" / -->
+
+  <property name="app.name"       value="dd"/>
+  <property name="deploy.home"    value="${tomcat.home}/webapps/${app.name}"/>
+  <property name="dist.home"      value="${deploy.home}"/>
+  <property name="dist.src"       value="${app.name}.jar"/>
+  <property name="dist.war"       value="${app.name}.war"/>
+  <!-- property name="javadoc.home"   value="${deploy.home}/javadoc"/ -->
+  <property name="javadoc.home"   value="javadoc"/>
+ 
+  <!-- The directory for temporary files (used during installation) -->
+  <property name="tmp"   value="/tmp" />
+
+  <!-- Tomcat libraries; for Tomcat 6.* -->
+<!--
+  <property name="tomcat.lib"     value="/usr/local/tomcat/lib"/>
+-->
+  <property name="tomcat.lib.rutgers"     value="/usr/local/tomcat55/common/lib"/>
+
+
+  <condition property="tomcat.lib" value="${tomcat.lib.rutgers}" else="/usr/local/tomcat/lib">
+  <available file="${tomcat.lib.rutgers}" property="tomcat.lib" value="${tomcat.lib.rutgers}"/>
+  </condition>
+
+  <!-- Our web application's library directory and classes directory -->
+  <property name="deploy.lib"      value="${deploy.home}/WEB-INF/lib" />
+  <property name="deploy.classes"  value="${deploy.home}/WEB-INF/classes" />
+  <property name="local.classes"  value="classes" />
+
+   <property name="compilelocal.classpath" 
+     value="../batik-1.7/batik.jar" />
+
+   <property name="compile.classpath" 
+     value="${compilelocal.classpath}:${tomcat.lib}/servlet-api.jar:lib/commons-fileupload-1.2.1.jar" />
+
+  <!-- Options to pass to JVM, when Java programs are run in auxiliary
+  scripts. This may be used to set -Dhttp.proxyHost=... etc. -->
+  <property name="util.java.opts"  value="" />
+   
+
+  <!-- The nickname of your code-signing certificate, and the password -->
+
+  <property name="sign.cert"   value="VladimirsTestCert"/>
+  <property name="sign.pass"   value="cerpa"/>
+
+<!--
+ <property name="sign.cert"   value="Rutgers University's Thawte Consulting cc ID" />
+  <property name="sign.pass"   value="cerpa"/>
+  <property name="sign.store"   value="USRUTG36.p12"/>
+-->
+
+ <!-- trying to get the compiler to produce byte code compatible with JDK 1.1/1.2 -->
+  <property name="build.compiler"   value="classic"/>
+
+
+<!-- The "prepare" target is used to construct the deployment home
+     directory structure (if necessary), and to copy in static files
+     as required.  In the example below, Ant is instructed to create
+     the deployment directory, copy the contents of the "web/" source
+     hierarchy, and set up the WEB-INF subdirectory appropriately.
+
+     "ant.conf" and "where.properties" are not copied yet; this will
+     be done in the "compile" target, after the classes directory is
+     created.
+
+-->
+
+<target name="preparelocal">
+  <mkdir  dir="${local.classes}"/>
+</target>
+
+<target name="prepare">
+  <mkdir  dir="${deploy.home}"/>
+  <!-- mkdir  dir="${deploy.home}/applet"/ -->
+  <echo message="Copying files from web/ to ${deploy.home}" />
+  <copy todir="${deploy.home}">
+    <fileset dir="web" excludes=".svn" />
+  </copy>
+  <mkdir  dir="${deploy.home}/WEB-INF"/>
+  <mkdir  dir="${deploy.classes}"/>
+  <!-- copy  file="etc/pages.sh" todir="${deploy.classes}"/ -->
+  <mkdir  dir="${deploy.lib}"/>
+  <mkdir  dir="${javadoc.home}"/>
+
+    <!-- echo file="where.sh">
+       # This file has been automatically created during deployment.
+       # Don't edit this file; instead, edit build.xml and re-run "ant compile"!
+       #
+       # ISATC compiled classes are here:
+       set SERVLET_DIR=${deploy.classes}
+       # Tomcat standard libraries are here:
+       set TOMCAT_LIB_DIR=${tomcat.lib}
+       # Suggested classpath for ISATC utilities
+       setenv SUGGESTED_CLASSPATH ${util.classpath}
+       # Options to pass to JVM
+       set JAVA_OPTS="${util.java.opts}"
+    </echo -->
+
+    <!-- echo file="src/isatc/where.properties">
+       # This file has been automatically created during deployment.
+       # Don't edit this file; instead, edit build.xml and re-run "ant compile"!
+       #
+       SERVLET_DIR: ${deploy.classes}
+       SUGGESTED_CLASSPATH:${util.classpath}
+    </echo -->
+</target>
+
+
+<!-- The "clean" target removes the deployment home directory structure,
+     so that the next time the "compile" target is requested, it will need
+     to compile everything from scratch.
+-->
+
+<target name="clean">
+  <delete dir="${deploy.home}"/>
+  <delete dir="${local.classes}"/>
+</target>
+
+
+<!-- The "compile" target is used to compile (or recompile) the Java classes
+     that make up this web application.  The recommended source code directory
+     structure makes this very easy because the <javac> task automatically
+     works its way down a source code hierarchy and compiles any class that
+     has not yet been compiled, or where the source file is newer than the
+     class file.
+
+     Feel free to adjust the compilation option parameters (debug,
+     optimize, and deprecation) to suit your requirements.  It is also
+     possible to base them on properties, so that you can adjust this
+     behavior at runtime.
+
+     The "compile" task depends on the "prepare" task, so the deployment
+     home directory structure will be created if needed the first time.
+
+
+           classpath=
+	   "${deploy.classes}:${tomcat.lib}/servlet.jar:${netscape.classpath}:lib/mail.jar"
+	   target="1.1" optimize="off" deprecation="off" 
+-->
+
+
+<target name="compile-noweb" depends="preparelocal">
+  <echo>
+    Compiling Java files
+  </echo>
+  <javac srcdir="src" destdir="${local.classes}" debug="on"   target="1.5"
+	 classpath="${compilelocal.classpath}" excludes="web/*"/>
+  <!-- mkdir dir="${tmp}" / -->
+</target>
+
+<target name="compile" depends="preparelocal">
+  <echo>
+    Compiling Java files
+  </echo>
+  <javac srcdir="src" destdir="${local.classes}" debug="on"   target="1.5"
+	 classpath="${compile.classpath}" />
+  <!-- mkdir dir="${tmp}" / -->
+</target>
+
+<target name="jar" depends="compile">
+<jar destfile="lib/dndo.jar"
+       basedir="${local.classes}"  />
+</target>
+
+<!-- copies our class files, as well as some libraries (such as Apache Commons
+     FileUpload to our web application's directory in the Tomcat tree -->
+  <!-- copy todir="${deploy.classes}/">   <fileset dir="${local.classes}"  />  </copy --> 
+  <!-- copy   todir="${deploy.classes}">
+       <fileset dir="src" includes="**/*.properties,**/*.conf"/>
+  </copy -->
+<target name="deploy"  depends="prepare,jar">
+  <copy  file="etc/web.xml" tofile="${deploy.home}/WEB-INF/web.xml"/>
+  <copy todir="${deploy.lib}">
+    <fileset dir="../batik-1.7/lib"><include name="**/*.jar"/></fileset>    
+  <!-- /copy>
+  <copy todir="${deploy.lib}" -->  
+    <fileset dir="lib"><include name="**/*.jar"/></fileset>
+  </copy>
+</target>
+
+<taskdef name="reloadclass.correct" classname="org.apache.catalina.ant.ReloadTask"/>
+
+<condition property="reloadclass" value="${reloadclass.correct}" else="">
+  <available file="${tomcat.home.rutgers}"/>
+</condition>
+
+
+<!--
+<property name="url" value="http://localhost:8080/manager"/>
+<taskdef name="reload"    classname="org.apache.catalina.ant.ReloadTask"/>
+  
+<target name="reload" description="Reload web application on localhost"
+        depends="deploy">
+  <reload url="${url}" username="vmenkov" password="tomcat" path="/${app.name}"/>
+</target>
+-->
+
+<!-- Signs applets with Sun Jar Signer. This is
+   for use with browsers equipped with Sun Java Plug-In (Netscape 6.* 
+   and, when provided for by the end user, MSIE. Maybe Mozilla, too)  -->
+
+  <!-- target name="sign" depends="prepare,compile,signold">
+    <echo message="Signing JavaScript and applet JAR" />
+    <mkdir dir="${tmp}/applet" />
+    <copy todir="${tmp}/applet/">
+      <fileset dir="${deploy.classes}"  includes="isatc/applet/*" />
+    </copy>
+
+    <jar jarfile="${deploy.home}/applet/a-plugin.jar"
+       basedir="${tmp}/applet"  whenempty="fail"  />
+
+     FIXME: the proper *.p12 file = ? 
+    <signjar jar="${deploy.home}/applet/a-plugin.jar" alias="${sign.cert}"
+      storepass="${sign.pass}"
+      storetype="pkcs12" keystore="VladimirsTestCert.p12"
+      verbose="false" />
+
+    <delete  dir="${tmp}/applet" />
+  </target -->
+
+  <!--
+   /usr/java/j2sdk1.4.0/bin/jarsigner -verbose -verify -certs a-plugin.jar
+   /usr/java/j2sdk1.4.0/bin/jarsigner -verify -certs a-plugin.jar
+   -->
+
+
+<!-- The "javadoc" target is used to create the Javadoc API documentation
+     for the Java classes in this web application.  It is assumed that
+     this documentation is included in the deployed application, so the
+     example below generates the Javadoc HTML files in a subdirectory under
+     the deployment home directory.  Feel free to customize the options for
+     the JavaDoc task, after consulting the Ant documentation.
+-->
+
+  <target name="javadoc" depends="prepare">
+    <javadoc sourcepath="src" packagenames="dd.*,dd.engine.*"
+       classpath="${compile.classpath}"   
+       Package="true"
+       destdir="${javadoc.home}"/>
+  </target>
+
+
+<!-- The "all" target rebuilds everything by executing the "clean"
+     target first, which forces the "compile" target to compile all
+     source code instead of just the files that have been changed.
+-->
+
+  <!-- target name="all" depends="clean,prepare,compile,sign,javadoc"/ -->
+
+
+<!-- The "dist" target builds the distribution Web ARchive (WAR) file
+     for this application, suitable for distribution to sites that wish
+     to install your application.  It also creates a JAR file containing
+     the source code for this application, if you wish to distribute
+     that separately.
+-->
+
+  <!-- target name="dist" depends="prepare,compile,sign">
+
+    <delete file="${dist.home}/${dist.src}"/>
+    <delete file="${dist.home}/${dist.war}"/>
+
+    <jar jarfile="/tmp/${dist.src}"      basedir="."/>
+    <jar jarfile="/tmp/${dist.war}"     basedir="${deploy.home}"/>
+
+    <copy todir="${dist.home}"  file="/tmp/${dist.war}"/>
+    <copy todir="${dist.home}"  file="/tmp/${dist.src}"/>
+
+  </target -->
+
+
+</project>
+
+

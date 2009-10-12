@@ -1,0 +1,177 @@
+Deceptive Detection Policy Frontier Finder: User's Guide
+
+	== 1. Prerequisites ==
+
+Java 1.6 on a Linux/UNIX or (hopefully) MS Windows machine.
+
+	== 2. INSTALLATION ==
+
+	=== Batik SVG Toolkit ===
+
+The Deceptive Detection Policy Frontier Finder uses the Batik SVG Toolkit to
+produce image files, or to convert image files from SVG format to JPG or PNG
+formats. It is a free Apache product.
+
+To make sending the distribution file by email, as well as later updating,
+easier, I don't include the Batik kit into it. Instead, please download the
+file batik-1.7.zip from the download page,
+http://xmlgraphics.apache.org/batik/download.cgi
+
+You then need to extract the files from that archive to some directory on
+your computer; on a Linux host, it can be done with
+     cd some_directory
+     unzip batik-1.7.zip
+
+This will have the subdirectoy "some_directory/batik-1.7" under the directory
+where you have started.
+
+There are various ZIP tools installed on most MS Windows machine as well.
+
+      === Our code ===
+
+Extract our distribution file ("unzip dd.zip") in the same parent directory in
+which you did Batik, so that along with 
+      some_directory/batik-1.7
+you also have
+      some_directory/dd
+
+It does not have to be done in this way, but if you install DD and Batik in 
+under different directories, you'd have to modify the classpath settings when
+runing our DD application.
+
+      === Recompiling ===
+
+You don't need to recompile the Java program, as class files are already
+supplied. Should you modify code in some way and need to recompile, you can do
+it by runing "compile.sh" in the directory "dd". 
+
+
+	== 3. Running the GUI program ==
+
+In UNIX, run this script in the directory "dd":
+
+./run.sh
+
+In MS Windows, run "run.bat".
+
+If the program fails during file-writing stage because it cannot find the
+Batik classes, it means that relative location of the batik-1.7 directory
+and the dd directory is not what it was expected to be. Move one of the
+directories, or modify run.sh in accordance with their actual location.
+
+	=== Reading the sensor list ===
+
+Use the "File | Read Config File" menu item to read a config file in the same
+format as used by your old application. This config file is simply the list of
+sensor files, one file name per line. Each sensor file described a single
+sensor, in the format specified by Paul and used by your old application
+
+	=== Computing ===
+
+Use the "Run | Compute frontier" menu item to compute the efficient frontier
+for the currently loaded set of sensors. It will take some time; you can watch
+the standard output (command line window) for the progress. Once the frontier
+has been computed, it will be plotted on the screen in the (Cost,
+DetectionRate) coordinates. The cost for each policy includes the stochastic
+cost of all tests and final inspections involved.
+
+	=== Saving as text ===
+
+You can save results as text using the "File | Save frontier" menu
+
+	=== Saving as an image file ===
+
+You can save results as an image file (SVG, JPG, or PNG) using the "File |
+Write frontier" menu. The output file format will be determined by the
+extension of the file name you have specified (.svg, .jpg, or .png).
+
+What format to use? SVG is the recommended format, as it's a vector
+format (i.e., perfectly scalable and lossless). An SVG image can
+always be converted to JPG or PNG later on, with Batik utilities (and
+probably to PostScript too); it can be viewed in good web browsers,
+such as Firefox. Nonetheless, you can also save a graph directly as an
+image in PNG or JPG format, if this makes your life easier.
+
+        === Saving approximated sensors ===
+
+Since ver 1.6.2, eps is applied to original sensors, replacing them
+with "approximated" sensors, by merging some "thin" channels
+("thinner" than eps in both C and D dimensions) into wider ones.
+
+The description of the approximated sensors can be saved using the
+"File | Save sensors" menu item. You will then will need to pick an
+existing or new directory into which the data files will be saved. For
+each sensor, two files will be saves:
+
+ * a sensor description file, describing the approximated sensor's ROC
+   curve, in the same format as used in the input files for the
+   original sensors.
+
+ * a "map" file, showing the what channel(s) of the original sensor each
+   channel of the approximated channel corresponds to. For a 5-channel
+   approximated sensor corresponding to an original 15-channel sensor,
+   the map file may look as follows:
+
+   0 3
+   1 5 
+   2 6
+   3 10
+   4 14
+
+   This means that channel 0 of the approximated sensor is obtained by
+   merging channels 0-3 of the original sensor, channel 1 is obtained by
+   merging channels 4-5, channel 2 is the original channel 6, and so on.
+
+   	=== Viewing policies ===
+
+Once a frontier has been computed and displayed on the screen, you can click a
+mouse button on any of the red circles representing policies. A menu will pop
+up, displaying basic info about the policy, and giving you an entry for
+plotting the decision tree of the policy. If you choose that entry, the
+decision tree for the chosen policy will be plotted in a separate new window.
+
+       == 4. Running the command-line program ==
+
+You can also run the frontier computation without the GUI, purely as a batch
+job. E.g.
+
+./batch-run.sh config.txt
+
+or
+
+time java -classpath classes dd.engine.Main config.txt
+
+(The "time" command preceding the "java" program name, and also included in
+bath0run.sh, provides for some runtime statistics from the UNIX shell - the
+user and system time, as well as wall-clock time, for the run)
+
+	== Converting SVG files to JPG or PNG ==
+
+If you are producing image files for importing into a document preparation
+system with PostScript or PDF output, such as LaTeX, SVG format is probably
+more suitable than JPG or PNG, because SVG is a vector format (and not a
+raster, i.e. bitmap, format as the other two), and SVG images can be scaled
+perfectly, without aliasing problems or quality loss. SVG files can also be
+viewed directly in many web browsers, such as modern versions of Firefox, or
+uploaded to image archive sites such as Wikipedia / Wikimedia Commons.
+
+Nonetheless, you may need to convert an SVG file to JPG or PNG. The Batik SVG
+toolkit, which you have installed already, includes a tool for this. It can be
+used as follows.
+
+To convert test.svg to test.png:
+      java -jar ../batik-1.7/batik-rasterizer.jar test.svg 
+To convert test.svg to test.jpg, using default quality:
+      java -jar ../batik-1.7/batik-rasterizer.jar -m image/jpeg test.svg 
+Same, with 80% quality:
+      java -jar ../batik-1.7/batik-rasterizer.jar -m image/jpeg -q 0.8 test.svg 
+
+
+More details on conversion (including dealing with multiple files at once) can
+be found here:
+
+http://xmlgraphics.apache.org/batik/tools/rasterizer.html
+
+There is also script "svg2jpg.sh" in the directory dd that you can use:
+
+./svg2jpg.sh test.svg test.jpg
