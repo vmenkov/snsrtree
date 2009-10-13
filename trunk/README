@@ -2,9 +2,19 @@ Deceptive Detection Policy Frontier Finder: User's Guide
 
 	== 1. Prerequisites ==
 
+	=== Necessary ===
 Java 1.6 on a Linux/UNIX or (hopefully) MS Windows machine.
 
-	== 2. INSTALLATION ==
+Batik SVG Toolkit (see below)
+
+     	 === Desirable ===
+
+Apache Ant: to facilitate compilation/deployment
+
+Apache Tomcat: only needed to run the web front end
+
+Apache Commons libraries: commons-fileupload-1.2.1.jar and
+commons-io-1.4.jar : to compile for the web front end
 
 	=== Batik SVG Toolkit ===
 
@@ -27,28 +37,88 @@ where you have started.
 
 There are various ZIP tools installed on most MS Windows machine as well.
 
-      === Our code ===
 
-Extract our distribution file ("unzip dd.zip") in the same parent directory in
-which you did Batik, so that along with 
-      some_directory/batik-1.7
-you also have
-      some_directory/dd
+	== 2. INSTALLATION FROM ZIP FILE ==
+
+If you have access to Sakai, and don't plan to do development work, it
+may be easiest from you to install the application from the ZIP file
+distributed at Sakai.
+
+1) Choose what directory you plan to install the Frontier Finder and
+the necessary libraries in. For the rest of the discussion, we'll
+assume that the directory (the "main directory") is called "dndo":
+
+       mkdir dndo
+
+2) Install Batik. As per instructions in seciton 1, download the Batik
+zip file and unpack it, so that batik-1.7 will be a subdirectory of
+your main directory:
+
+     cd dndo
+     unzip batik-1.7.zip
+
+3) Download the distribution file for the current version of the Frontier Finder
+(e.g. snsrtree-v1_8_0.zip) from Sakai, and extract it into the main directory:
+
+      cd dndo
+      unzip snsrtree-v1_8_0.zip
+
+This way, your main directory will have a subdirectory for Batik and a subdirectory for Snsrtree, e.g.
+
+     dndo/batik-1.7
+and
+     dndo/snsrtree
 
 It does not have to be done in this way, but if you install DD and Batik in 
 under different directories, you'd have to modify the classpath settings when
 runing our DD application.
 
-      === Recompiling ===
+4) You don't need to recompile the Java program, since the code has
+been already compiled, and a Jar file is included in the
+distribution. Should you modify code in some way and need to
+recompile, you can do it by runing 
+	   ant compile
+in the directory "snsrtree"      	  
 
-You don't need to recompile the Java program, as class files are already
-supplied. Should you modify code in some way and need to recompile, you can do
-it by runing "compile.sh" in the directory "dd". 
+       == 3. Installing from Google Code ==
 
+An alternative process for installing the application is by
+downloading its source code from the repository at
+http://code.google.com/p/snsrtree/ , and then recompiling it yourself.
 
-	== 3. Running the GUI program ==
+Assuming that your "main" directory is called "dndo", 
+you can check out the code from the repository as follows:
 
-In UNIX, run this script in the directory "dd":
+    cd dndo
+    svn checkout https://snsrtree.googlecode.com/svn/trunk/ snsrtree
+
+You will also need to download the Batik toolkit (see above), and unpack it into
+a subdirectory of your main directory:
+
+    cd dndo
+    unzip batik-1.7.zip
+
+Finally, you will also need to download two jar files from Apache web
+site (commons-fileupload-1.2.1.jar from
+http://commons.apache.org/fileupload/ , and commons-io-1.4.jar from
+http://commons.apache.org/downloads/download_io.cgi) and
+installed these jar files into snsrtree/lib :
+
+    cd dndo
+    cd snsrtree
+    mkdir lib
+
+(The Apache site may distribute Jar files not individually, but
+packaged with other files into ZIP of TAR.GZ files; you'd need to
+unpack those, and place the extracted jar files into snsrtree/lib).
+
+Once everything is installed, you can run
+    ant compile
+in the snsrtree directory.
+
+	== 4. Running the GUI program ==
+
+In UNIX, run this script in the directory "snsrtree":
 
 ./run.sh
 
@@ -130,7 +200,7 @@ up, displaying basic info about the policy, and giving you an entry for
 plotting the decision tree of the policy. If you choose that entry, the
 decision tree for the chosen policy will be plotted in a separate new window.
 
-       == 4. Running the command-line program ==
+       == 5. Running the command-line program ==
 
 You can also run the frontier computation without the GUI, purely as a batch
 job. E.g.

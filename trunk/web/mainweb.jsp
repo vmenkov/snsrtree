@@ -66,7 +66,7 @@ Budget (between 0.0 and 1.1): <input type="text" name="budget"
 	<input type="submit" name="2" value="2. Mixed action"></form></td></tr>
 	<tr><td <%=bgc[3]%>><form action="mainweb.jsp"  method="post">
 	<input type=hidden name="stage" value="3">
-	<input type="submit" name="3" value="3. All mixed"></form></td></tr>
+	<input type="submit" name="3" value="3. Fully randomized deceptive strategy"></form></td></tr>
 </table>
 </td>
 <td>
