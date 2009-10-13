@@ -7,7 +7,7 @@
 -->
 
 
-<project name="DeceptiveDetectionFrontierFinder" default="compile" basedir=".">
+<project name="snsrtree" default="compile" basedir=".">
 
 
 <!-- Property Definitions
@@ -80,9 +80,7 @@
   <property name="tmp"   value="/tmp" />
 
   <!-- Tomcat libraries; for Tomcat 6.* -->
-<!--
-  <property name="tomcat.lib"     value="/usr/local/tomcat/lib"/>
--->
+<!-- <property name="tomcat.lib"     value="/usr/local/tomcat/lib"/> -->
   <property name="tomcat.lib.rutgers"     value="/usr/local/tomcat55/common/lib"/>
 
 
@@ -117,19 +115,11 @@
   <property name="sign.store"   value="USRUTG36.p12"/>
 -->
 
- <!-- trying to get the compiler to produce byte code compatible with JDK 1.1/1.2 -->
-  <property name="build.compiler"   value="classic"/>
-
-
 <!-- The "prepare" target is used to construct the deployment home
      directory structure (if necessary), and to copy in static files
      as required.  In the example below, Ant is instructed to create
      the deployment directory, copy the contents of the "web/" source
      hierarchy, and set up the WEB-INF subdirectory appropriately.
-
-     "ant.conf" and "where.properties" are not copied yet; this will
-     be done in the "compile" target, after the classes directory is
-     created.
 
 -->
 
@@ -149,28 +139,6 @@
   <!-- copy  file="etc/pages.sh" todir="${deploy.classes}"/ -->
   <mkdir  dir="${deploy.lib}"/>
   <mkdir  dir="${javadoc.home}"/>
-
-    <!-- echo file="where.sh">
-       # This file has been automatically created during deployment.
-       # Don't edit this file; instead, edit build.xml and re-run "ant compile"!
-       #
-       # ISATC compiled classes are here:
-       set SERVLET_DIR=${deploy.classes}
-       # Tomcat standard libraries are here:
-       set TOMCAT_LIB_DIR=${tomcat.lib}
-       # Suggested classpath for ISATC utilities
-       setenv SUGGESTED_CLASSPATH ${util.classpath}
-       # Options to pass to JVM
-       set JAVA_OPTS="${util.java.opts}"
-    </echo -->
-
-    <!-- echo file="src/isatc/where.properties">
-       # This file has been automatically created during deployment.
-       # Don't edit this file; instead, edit build.xml and re-run "ant compile"!
-       #
-       SERVLET_DIR: ${deploy.classes}
-       SUGGESTED_CLASSPATH:${util.classpath}
-    </echo -->
 </target>
 
 
@@ -207,28 +175,18 @@
 -->
 
 
-<target name="compile-noweb" depends="preparelocal">
-  <echo>
-    Compiling Java files
-  </echo>
-  <javac srcdir="src" destdir="${local.classes}" debug="on"   target="1.5"
-	 classpath="${compilelocal.classpath}" excludes="web/*"/>
-  <!-- mkdir dir="${tmp}" / -->
-</target>
 
 <target name="compile" depends="preparelocal">
-  <echo>
-    Compiling Java files
-  </echo>
+  <echo>    Compiling Java files  </echo>
   <javac srcdir="src" destdir="${local.classes}" debug="on"   target="1.5"
 	 classpath="${compile.classpath}" />
-  <!-- mkdir dir="${tmp}" / -->
+  <echo>    Building a jar file  </echo>
+  <jar destfile="lib/dndo.jar"   basedir="${local.classes}"  />
 </target>
 
-<target name="jar" depends="compile">
-<jar destfile="lib/dndo.jar"
-       basedir="${local.classes}"  />
-</target>
+<!-- target name="jar" depends="compile">
+<jar destfile="lib/dndo.jar"   basedir="${local.classes}"  />
+</target -->
 
 <!-- copies our class files, as well as some libraries (such as Apache Commons
      FileUpload to our web application's directory in the Tomcat tree -->
@@ -236,7 +194,7 @@
   <!-- copy   todir="${deploy.classes}">
        <fileset dir="src" includes="**/*.properties,**/*.conf"/>
   </copy -->
-<target name="deploy"  depends="prepare,jar">
+<target name="deploy"  depends="prepare,compile">
   <copy  file="etc/web.xml" tofile="${deploy.home}/WEB-INF/web.xml"/>
   <copy todir="${deploy.lib}">
     <fileset dir="../batik-1.7/lib"><include name="**/*.jar"/></fileset>    
@@ -246,66 +204,42 @@
   </copy>
 </target>
 
-<taskdef name="reloadclass.correct" classname="org.apache.catalina.ant.ReloadTask"/>
+<property name="reloadclass.correct" value="org.apache.catalina.ant.ReloadTask"/>
 
 <condition property="reloadclass" value="${reloadclass.correct}" else="">
-  <available file="${tomcat.home.rutgers}"/>
+  <available classname="${reloadclass.correct}"/>
 </condition>
 
-
-<!--
 <property name="url" value="http://localhost:8080/manager"/>
-<taskdef name="reload"    classname="org.apache.catalina.ant.ReloadTask"/>
+<taskdef name="reload"    classname="${reloadclass}"/>
   
 <target name="reload" description="Reload web application on localhost"
         depends="deploy">
   <reload url="${url}" username="vmenkov" password="tomcat" path="/${app.name}"/>
 </target>
--->
-
-<!-- Signs applets with Sun Jar Signer. This is
-   for use with browsers equipped with Sun Java Plug-In (Netscape 6.* 
-   and, when provided for by the end user, MSIE. Maybe Mozilla, too)  -->
-
-  <!-- target name="sign" depends="prepare,compile,signold">
-    <echo message="Signing JavaScript and applet JAR" />
-    <mkdir dir="${tmp}/applet" />
-    <copy todir="${tmp}/applet/">
-      <fileset dir="${deploy.classes}"  includes="isatc/applet/*" />
-    </copy>
-
-    <jar jarfile="${deploy.home}/applet/a-plugin.jar"
-       basedir="${tmp}/applet"  whenempty="fail"  />
-
-     FIXME: the proper *.p12 file = ? 
-    <signjar jar="${deploy.home}/applet/a-plugin.jar" alias="${sign.cert}"
-      storepass="${sign.pass}"
-      storetype="pkcs12" keystore="VladimirsTestCert.p12"
-      verbose="false" />
-
-    <delete  dir="${tmp}/applet" />
-  </target -->
-
-  <!--
-   /usr/java/j2sdk1.4.0/bin/jarsigner -verbose -verify -certs a-plugin.jar
-   /usr/java/j2sdk1.4.0/bin/jarsigner -verify -certs a-plugin.jar
-   -->
-
 
 <!-- The "javadoc" target is used to create the Javadoc API documentation
-     for the Java classes in this web application.  It is assumed that
-     this documentation is included in the deployed application, so the
-     example below generates the Javadoc HTML files in a subdirectory under
-     the deployment home directory.  Feel free to customize the options for
-     the JavaDoc task, after consulting the Ant documentation.
+     for the Java classes in this web application. 
 -->
 
-  <target name="javadoc" depends="prepare">
-    <javadoc sourcepath="src" packagenames="dd.*,dd.engine.*"
-       classpath="${compile.classpath}"   
-       Package="true"
-       destdir="${javadoc.home}"/>
-  </target>
+<target name="javadoc" depends="prepare">
+  <javadoc sourcepath="src" packagenames="dd.*,dd.engine.*"
+	   classpath="${compile.classpath}"   
+	   Package="true"
+	   destdir="${javadoc.home}"/>
+</target>
+
+<!-- Archives source code, compiled classes, and libraries -->
+<target name="zip" depends="compile">
+  <zip destfile="../snsrtree.zip">
+    <zipfileset dir="." prefix="snsrtree"  
+		excludes="classes/**,**/.svn,**/*.bak,**/*.orig,**/*~,run.sh"/>
+    <zipfileset prefix="snsrtree" file="run.sh" filemode="755" />
+  </zip>
+</target>
+
+ <!-- zip destfile="../snsrtree.zip" basedir="." >
+       includes="snsrtree/**" excludes="snsrtree/classes/**,**/*.bak,**/*.java.orig,**/*~"    / -->
 
 
 <!-- The "all" target rebuilds everything by executing the "clean"
@@ -333,7 +267,6 @@
 
     <copy todir="${dist.home}"  file="/tmp/${dist.war}"/>
     <copy todir="${dist.home}"  file="/tmp/${dist.src}"/>
-
   </target -->
 
 
