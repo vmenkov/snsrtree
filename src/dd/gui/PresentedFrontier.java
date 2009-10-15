@@ -15,7 +15,7 @@ import dd.engine.*;
  This class is public because it's used by the web GUI, too 
  */
 public class PresentedFrontier extends PresentedData {
-    final AnnotatedFrontier frontier;
+    final protected AnnotatedFrontier frontier;
 
     /** (Optionally) additional frontiers to display on the same graph */
     Vector<AnnotatedFrontier> otherFrontiers;//=new Vector<AnnotatedFrontier>();
@@ -89,14 +89,9 @@ public class PresentedFrontier extends PresentedData {
 	g2d.setPaint(Color.red);
 	drawFrontierCurve(g2d, frontier, eps, fromGUI, at);
 
-	if (db != null) {
-	    // used in web demo
-	    plotBudget(g2d, at, frontier.getPi());
-	}
-
     }
 
-    private void drawFrontierCurve(Graphics2D g2d, 
+    protected void drawFrontierCurve(Graphics2D g2d, 
 				   Frontier frontier, 
 				   double eps,
 				   boolean doAddToTable,

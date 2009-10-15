@@ -44,22 +44,6 @@ public class GraphServlet extends HttpServlet {
     public void	doGet(HttpServletRequest request,HttpServletResponse response) {
 	DemoSessionData r = DemoSessionData.getDemoSessionData(request);
 
-	/*
-	if (!r.error && r.q==null) {
-	    r.error = true;
-	    r.errmsg = "No sensor info available";
-	}
-
-
-	if (r.error) {
-	    try {
-		response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, r.errmsg);
-	    } catch(IOException ex) {};
-	    
-	    return;
-	} 
-	*/
-
 
 	try {
 	    //  r.presented must have been set in main.jsp

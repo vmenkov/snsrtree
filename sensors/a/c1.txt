@@ -1,0 +1,4 @@
+sensorA.txt
+sensorB.txt
+sensorC.txt
+sensorD.txt

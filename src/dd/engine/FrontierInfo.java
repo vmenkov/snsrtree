@@ -30,8 +30,8 @@ abstract public class FrontierInfo {
     //final
     //public  double pi;
 
-    FrontierContext context;
-
+    public FrontierContext context;
+    
     public  double getPi() { return context.pi; }
     public  double getMaxCost() { return context.getInspectCostPi(); }
     public double getEps() { return context.eps; }

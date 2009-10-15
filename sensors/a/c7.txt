@@ -1,0 +1,7 @@
+sensorA.txt
+sensorB.txt
+sensorC.txt
+sensorD.txt
+sensorE.txt
+sensorF.txt
+sensorG.txt

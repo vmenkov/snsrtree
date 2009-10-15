@@ -103,15 +103,20 @@ public class PresentedSensor extends PresentedData {
 	//frontier.getMaxCost();
 	double realWidth =  context.getInspectCostPi();
 
+	// 1. grid...
 	AffineTransform at =  drawGrid(g2d, bounds, realWidth, title, true);
 	
+	// 2. curve
 	g2d.setPaint(Color.red);
 	plotSensor(g2d, eps, fromGUI, at); // FIXME
+
+	// 3. budget
+	if (budget != null) plotBudget(g2d, at, context.pi);
+
 	
     }
 
-    // FIXME: offset each point by TEST COST!
-    private void plotSensor(Graphics2D g2d,  double eps,
+    void plotSensor(Graphics2D g2d,  double eps,
 			    boolean doAddToTable,   AffineTransform at)  {
 	
 
@@ -145,8 +150,6 @@ public class PresentedSensor extends PresentedData {
 		g2d.draw( at.createTransformedShape(line));
 	    }
 	}
-
-	if (budget != null) plotBudget(g2d, at, context.pi);
 
     }
    

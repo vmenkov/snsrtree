@@ -5,7 +5,7 @@ package dd.web;
 
 import java.io.*;
 import java.util.*;
-import dd.engine.*;
+import java.text.*;
 
 import javax.servlet.*;
 import javax.servlet.http.*;
@@ -93,11 +93,11 @@ public class DemoSessionData {
 	    AnnotatedFrontier frontier=new AnnotatedFrontier(f,1,startTime);
 	    
 	    //AnnotatedFrontier frontier =  Frontier.buildFrontier(actualSensors, otherFrontiers);
-	    presented = new PresentedFrontier(actualSensors, frontier,null);
 
-	    if (budget!=null) {
-		presented.db = frontier.detectionRateForBudget(budget.doubleValue(), true);
-	    }
+	    //presented = new PresentedFrontier(actualSensors, frontier,null);
+	    presented = new 
+		PresentedFullMixing(actualSensors, frontier, budget);
+
 	} else {
 	    // can't do anything
 	}
@@ -123,5 +123,60 @@ public class DemoSessionData {
 	return sd;
     }
 
+    final static NumberFormat pcfmt = new DecimalFormat("#0.##");
+    final static NumberFormat ratefmt = new DecimalFormat("0.###");
+
+
+    public String budgetMessage() {
+
+	DetectionRateForBudget db =    presented.db;
+	String s="";
+	if (db == null) return "";
+	
+	s = "<p>The best available policy within budget="+db.givenBudget
+	    +" (shown with a black circle) is ";
+	s += db.w==1 ?
+	    "a non-mixed policy "+db.p1.toTreeString()+". Its total cost is " :
+	    "a mixed policy: applying the policy "+ db.p1.toTreeString() +
+	    " in " + pcfmt.format(100*db.w) + "% of cases, and the policy "+
+	    db.p2.toTreeString() + " the other "+
+	    pcfmt.format(100*(1-db.w)) + "% of cases. " +
+	    " Its total cost, on average, is ";
+	s += pcfmt.format(db.actualBudget) +
+	    " This policy detects " + pcfmt.format(100*db.detectionRate) +
+	    "% of the \"bad\" objects." +
+	    "</p>";
+	
+	// (stage==3) : compare full to partial
+	if (presented instanceof  PresentedFullMixing) {		
+	    PresentedFullMixing pres = ( PresentedFullMixing)presented;
+	    
+	    DetectionRateForBudget db0 = pres.presentedPartialMixing.db;
+	    if (Math.abs(db.detectionRate - db0.detectionRate)<1e-3) {
+		// about the same - not bother describing
+	    } else if (db0.detectionRate==0) {
+		s+= "<p>This compares to 0% detection rate given by the simple mixing policy.</p>";
+	    } else {
+		double inc = (db.detectionRate - db0.detectionRate)/db0.detectionRate;
+		s+= "<p>This is an increase of "+pcfmt.format(inc*100)+
+		    "% when compared to the base ("+ 
+		    pcfmt.format(100*db0.detectionRate)+
+		    "%) given by the simple mixing policy (shown by black dashed circle).";
+
+		double eqB = pres.bForD.actualBudget;
+		
+		if (eqB < db.actualBudget) {
+		    double saving = (db.actualBudget-eqB)/ db.actualBudget;
+
+		    s+=" Alternatively, with the full mixing strategy, the detection level ("+ 
+			pcfmt.format(100*db0.detectionRate)+
+			"%) could be achieved at a budget of "+
+			ratefmt.format(eqB)+", saving "+pcfmt.format(100*saving)+"% of the original budget (shown by black dashed square)";
+		}
+		s += " </p>";
+	    }
+	}
+	return s;
+    }
 
 }
