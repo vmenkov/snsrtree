@@ -89,7 +89,6 @@ public class DemoSessionData {
 	    
 	    //AnnotatedFrontier frontier =  Frontier.buildFrontier(actualSensors, otherFrontiers);
 
-	    //presented = new PresentedFrontier(actualSensors, frontier,null);
 	    presented = new 
 		PresentedFullMixing(actualSensors, frontier, budget);
 
