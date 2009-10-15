@@ -22,11 +22,11 @@
    if (main.error) {
    %>
 <p class="normal">Error: <em class="errMsg"><%= main.errmsg %></em></p>
+<% if (main.e != null) { %>
 <p><%= main.e %>
 <pre><%= main.exceptionTrace() %></pre></p><%
-   }
-
-    if (r.q==null) {
+      }
+   } else if (r.q==null) {
 %>
 <p>No valid sensor data supplied. Please go to the <a href="sensorForm.jsp">sensor upload form</a> to upload a sensor description.
 </p>
@@ -50,6 +50,7 @@ Budget (between 0.0 and 1.1): <input type="text" name="budget"
 value="<%=(r.budget!=null) ? r.budget.toString(): ""%>">
 <input type="submit" value="Enter">
 </form></td></tr>
+
 <tr>
 <td valign="top">
 <% String bgc[] = {"","","",""};
@@ -68,13 +69,22 @@ value="<%=(r.budget!=null) ? r.budget.toString(): ""%>">
        </td></tr>
 </table></form>
 </td>
-<td>
+<td rowspan=2>
 <% if (r.presented==null) { %> No data generated! <%
 } else { %>
 <img src="GraphServlet?stage=<%=r.stage%>&serial=<%=r.presented.serial%>" alt="Loading cost/detection rate plot, stage <%=r.stage%>...">
 <% } %>
 </td>
 </tr>
+
+<tr><td valign=top>
+<p>Sensor description:<small>
+<pre>
+<%= r.q.toString1() %>
+</pre>
+</small></p>
+</td></tr>
+
 <tr><td colspan=2>
 <p>stage=<%=r.stage%>:</p>
 <p>
@@ -115,8 +125,10 @@ The green curve, is shown, is from stage 2.
 <%}%>
 
 </td></tr>
+
 <tr><td colspan=2><%=  r.budgetMessage() %>
 </td></tr>
+
 </table> 
 
 <%}%>

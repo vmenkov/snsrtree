@@ -289,7 +289,7 @@ public class Test implements Cloneable {
 
     /** Saves the test in the same format as used in input 
      */
-    public void print(PrintStream out)	{
+    public void print(PrintWriter out)	{
 	//out.println("there are " + getM() + " channels");
 	out.println("cost " + cost);
 	//  System.out.println("The (B,G) curve:");
@@ -299,6 +299,20 @@ public class Test implements Cloneable {
 	}
 	out.flush();
     }
+
+    
+    public void print(OutputStream out)	{
+	print( new PrintWriter(out));
+    }
+    
+    /** Saves the test in the same format as used in input 
+     */
+     public String toString1() {
+	 StringWriter sw= new StringWriter();
+	 print(new PrintWriter(sw));
+	 sw.flush();
+	 return sw.toString();
+     }
 
     /** Prints the approximation map, if available.
      */
