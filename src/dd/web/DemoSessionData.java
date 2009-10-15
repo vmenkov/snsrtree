@@ -27,6 +27,7 @@ public class DemoSessionData {
     /* The sensor which we display in this way and that... */
     public Test q=null;
     public String sensorFileName = null;
+    public boolean sensorFromTextarea = false;
     /** Includes pi */
     public FrontierContext context = new FrontierContext(true, 0, VSMethod.VM1, 1e-6);
 
@@ -64,7 +65,10 @@ public class DemoSessionData {
 	}
 
 	s = request.getParameter("stage");
-        if (s!=null) {
+        if (s!=null) { 
+	    // only use the first char of the string, for IE compatibility
+	    s = s.trim();
+	    if (s.length()>0) s = s.substring(0,1);
             try {
                 int x = Integer.valueOf(s);
                 if (x>=1 && x<=3) {
@@ -149,7 +153,7 @@ public class DemoSessionData {
 	    if (Math.abs(db.detectionRate - db0.detectionRate)<1e-3) {
 		// about the same - not bother describing
 	    } else if (db0.detectionRate==0) {
-		s+= "<p>This compares to 0% detection rate given by the simple mixing policy.</p>";
+		s+= "<p>This compares to 0% detection rate given by the simple mixing policy (shown by black dashed circle).</p>";
 	    } else {
 		double inc = (db.detectionRate - db0.detectionRate)/db0.detectionRate;
 		s+= "<p>This is an increase of "+pcfmt.format(inc*100)+

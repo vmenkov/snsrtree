@@ -579,7 +579,7 @@ public class DDGUI extends MyJFrame {
 		    String name = "sensor-" + i+ "-" +q.getName() + ".txt";
 		    File g = new File(file, name);
 		    FileOutputStream w = new FileOutputStream(g); 
-		    q.print(new PrintStream( w ));
+		    q.print(w);
 		    w.close();
 		    setLabel("Description of (approximated) sensor " + 
 			     q.getName() + "  has been written to file "+ 
