@@ -46,7 +46,7 @@ Expected proportion of "bad" objects (pi, between 0.0 and 1.0):
 </td></tr -->
 
 <tr> <td colspan=2><form action="mainweb.jsp" method="post">
-Budget (between 0.0 and 1.1): <input type="text" name="budget" 
+Budget (between 0.0 and 1.0): <input type="text" name="budget" 
 value="<%=(r.budget!=null) ? r.budget.toString(): ""%>">
 <input type="submit" value="Enter">
 </form></td></tr>
