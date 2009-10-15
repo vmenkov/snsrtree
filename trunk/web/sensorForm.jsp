@@ -25,7 +25,8 @@ cost: .05
 .4 .8
 1 1
 </pre>
-The first line of the file contains the cost of the test; the remaining line describe the (B,G) curve, which runs from (0,0) to (1,1).
+
+The first line of the file contains the cost of the test; the remaining lines describe the ROC curve (detection rate versus false alarm rate), which runs from (0,0) to (1,1).
 <p>
 
 </td></tr>
