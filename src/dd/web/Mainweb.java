@@ -22,6 +22,7 @@ public class Mainweb extends ResultsBase {
 	// prepare "presented" both for a text report now and to plot it 
 	// later in GraphServlet
 	if (sd.q != null) sd.makePresentedData();
+	else sd.presented = null;
     }
 
 }
