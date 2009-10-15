@@ -20,7 +20,7 @@ import java.util.regex.*;
 
 public class Main  {
 
-    public static final String version = "1.7.4"; // (2009-10-12)
+    public static final String version = "1.7.5"; // (2009-10-16)
     
     public static void main(String[] argv) throws IOException, DDException {
 

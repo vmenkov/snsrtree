@@ -9,7 +9,6 @@
 <% 
         Mainweb main=new Mainweb(request);
 	DemoSessionData r= main.sd;
-        NumberFormat pcfmt = new DecimalFormat("#0.###");
 %>
 
 <html>
@@ -53,21 +52,21 @@ Budget (between 0.0 and 1.1): <input type="text" name="budget"
 </form></td></tr>
 <tr>
 <td valign="top">
-<table>
 <% String bgc[] = {"","","",""};
    bgc[r.stage] = "bgcolor=\"#D09000\"";
 %>
-	<tr><td>Show ...</td?</tr>
-	<tr><td <%=bgc[1]%>><form  action="mainweb.jsp" method="post">
-	<input type=hidden name="stage" value="1">
-	<input type="submit" name="1" value="1. Non-mixed policies only"></form></td></tr>
-	<tr><td <%=bgc[2]%>><form action="mainweb.jsp"  method="post">
-	<input type=hidden name="stage" value="2">
-	<input type="submit" name="2" value="2. Mixed action"></form></td></tr>
-	<tr><td <%=bgc[3]%>><form action="mainweb.jsp"  method="post">
-	<input type=hidden name="stage" value="3">
-	<input type="submit" name="3" value="3. Fully randomized deceptive strategy"></form></td></tr>
-</table>
+<form  action="mainweb.jsp" method="post"><table>
+       <tr><td>Show ...</td?</tr>
+       <tr><td <%=bgc[1]%>>	
+       <button name="stage" value="1">1. Non-mixed policies only</button>
+       </td></tr>
+       <tr><td <%=bgc[2]%>>
+       <button name="stage" value="2">2. Mixed action</button>
+       </td></tr>
+       <tr><td <%=bgc[3]%>>
+       <button name="stage" value="3">3. Fully randomized deceptive strategy</button>
+       </td></tr>
+</table></form>
 </td>
 <td>
 <% if (r.presented==null) { %> No data generated! <%
@@ -104,43 +103,23 @@ of the channels.
 
 <%} else if (r.stage==3) {%>
 
-This plot shows average per-item costs and detection rates for the
+The red curve shows average per-item costs and detection rates for the
 "extremal frontier" policies based on the specified sensor and the
 no-test I[nspect] and R[elease] polices. They include mixed policies that
 may perform the test only in certain percentage of randomly selected tests.
-
-<%}%>
-
-</td></tr>
-<tr><td colspan=2>
-<%  DetectionRateForBudget db =	r.presented.db;
-    if (db != null) {
-%>
-<p>The best available policy within budget=<%=db.givenBudget%> is 
-<% if (db.w==1) {%> 
-a non-mixed policy <%= db.p1.toTreeString() %>. Its total cost is
-<%} else {%>
-a mixed policy: applying the policy  <%= db.p1.toTreeString() %> in 
-<%= pcfmt.format(100*db.w) %>% of cases, and the policy  <%= db.p2.toTreeString() %> in 
-the other <%= pcfmt.format(100*(1-db.w)) %>% of cases.
-Its total cost, on average, is
-<%}%>
-<%= pcfmt.format(db.actualBudget)%>. 
-This policy detects <%= pcfmt.format(100*db.detectionRate) %>% of "bad" objects.
 </p>
-<% } %>
+
+<p>
+The green curve, is shown, is from stage 2. 
+
+<%}%>
+
 </td></tr>
-<%    if (r.q!=null) {%>
-<tr>
-<td colspan=2>
-<small>Sensor description: <%= r.q %></small>
+<tr><td colspan=2><%=  r.budgetMessage() %>
 </td></tr>
-<% } %>
 </table> 
 
-<%
-}
-%>
+<%}%>
 
 <hr>
 <p><small><em>

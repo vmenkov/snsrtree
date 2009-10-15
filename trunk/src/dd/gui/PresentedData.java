@@ -133,6 +133,11 @@ abstract public class PresentedData {
 			       db.p2.getDetectionRate() * (1-db.w));
     }
 
+    protected static void square(Graphics2D g2d, Point2D p, int r) {
+	int x = (int)p.getX()-r, y=(int)p.getY()-r;
+	g2d.draw( new Rectangle2D.Double(x,y,2*r,2*r));
+    }
+
     protected static void circle(Graphics2D g2d, Point2D p, int r) {
 	int x = (int)p.getX()-r, y=(int)p.getY()-r;
 	g2d.drawOval( x, y, 2*r, 2*r);

@@ -11,6 +11,22 @@ public class  DetectionRateForBudget {
     public PolicySignature p1=null, p2=null;
     public double w=1;
 
+    public DetectionRateForBudget(PolicySignature _p1, 
+				  PolicySignature _p2, 
+				  FrontierContext context,
+				  double _w) {
+	p1 = _p1;
+	p2 = _p2;
+	w = _w;
+	actualBudget = p1.getPolicyCost(context.pi);
+	detectionRate =  p1.getDetectionRate();
+	if (w<1) {
+	    actualBudget= actualBudget*w + p2.getPolicyCost(context.pi) * (1-w);
+	    detectionRate = detectionRate*w + p2.getDetectionRate() * (1-w);
+ 	} 
+	givenBudget = actualBudget;	   
+    }
+
     public DetectionRateForBudget(PolicySignature p[],
 				  FrontierContext context,
 				  double budget, 
@@ -47,6 +63,31 @@ public class  DetectionRateForBudget {
 	p2=null;
 	actualBudget = p1.getPolicyCost(context.pi);
 	detectionRate =  p1.getDetectionRate();
+    }
+
+    /** Tries to find the mixed policy that provides a given detection
+     * rate. Assumes that full mixing is allowed, from I to R. */
+    static public DetectionRateForBudget 
+	budgetForDetectionRate(PolicySignature p[],
+			       FrontierContext context,
+			       double d) {
+	if (d < 0 || d > 1 ) throw new IllegalArgumentException("Requested detection rate  outside of the legal range [0,1]");
+
+
+	PolicySignature p1 =  Policy.RELEASE;
+	for(int i=0; i<=p.length; i++) {
+	    PolicySignature  p2 = (i<p.length) ? p[i] : context.INSPECT;
+	    double d1 = p1.getDetectionRate(),d2 = p2.getDetectionRate();
+
+	    if (d2==d) {
+		return new DetectionRateForBudget(p2, null, context, 1);
+	    } else if (d2>d) {
+		return new DetectionRateForBudget(p1,p2,context,(d2-d)/(d2-d1));
+	    }
+	    p1 = p2;
+	}
+	// Ought not ever happen, as we include I and R, and mixes with them
+	throw new IllegalArgumentException("Policy set does not cover desired detection rate "+ d);
     }
 
 }
