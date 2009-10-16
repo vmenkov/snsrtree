@@ -47,8 +47,12 @@ cost: .05
 1 1  <% } %>
 </textarea>
 <br>
+<!--
 <button name="sendsensor" value="1">Upload data from the box above</button>
 <button name="reset" type="reset">Reset sample text</button>
+-->
+<input type="submit" name="sendsensor" value="Upload data from the box above">
+<input name="reset" type="reset" value="Reset sample text">
 </form>
 
 </td></tr>

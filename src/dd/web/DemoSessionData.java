@@ -18,6 +18,17 @@ import dd.gui.*;
  * session of the Demo Application (via HttpSession.setAttribute), and
  * stores all the information that may be set via one http request and
  * needs to be accessible during the processing of other requests.
+
+ * There are two purposes for storing data like this: 
+ 
+ <ol> <li> Not having to pass information about sensor, budget,
+ etc. from call to call via e.g. hidden parameters.
+
+ <li> Logically integrating the production of an image and its text
+ description - the two things that are logically connected, but have
+ toi be served by two seprate servlets.
+
+ </ol>
  */
 public class DemoSessionData {
 
@@ -131,7 +142,9 @@ public class DemoSessionData {
 	String s="";
 	if (db == null) return "";
 	
-	s = "<p>The best available policy within budget="+db.givenBudget
+	s = "<p>";
+	s += (stage==2)? "The policy for ": "The best available policy within ";
+	s += "budget="+db.givenBudget
 	    +" (shown with a black circle) is ";
 	s += db.w==1 ?
 	    "a non-mixed policy "+db.p1.toTreeString()+". Its total cost is " :
@@ -153,13 +166,13 @@ public class DemoSessionData {
 	    if (Math.abs(db.detectionRate - db0.detectionRate)<1e-3) {
 		// about the same - not bother describing
 	    } else if (db0.detectionRate==0) {
-		s+= "<p>This compares to 0% detection rate given by the simple mixing policy (shown by black dashed circle).</p>";
+		s+= "<p>This compares to 0% detection rate given by the naive mixing policy (shown by black dashed circle).</p>";
 	    } else {
 		double inc = (db.detectionRate - db0.detectionRate)/db0.detectionRate;
 		s+= "<p>This is an increase of "+pcfmt.format(inc*100)+
 		    "% when compared to the base ("+ 
 		    pcfmt.format(100*db0.detectionRate)+
-		    "%) given by the simple mixing policy (shown by black dashed circle).";
+		    "%) given by the naive mixing policy (shown by black dashed circle).";
 
 		double eqB = pres.bForD.actualBudget;
 		
