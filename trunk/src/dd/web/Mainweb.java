@@ -32,7 +32,9 @@ public class Mainweb extends ResultsBase {
 	else sd.presented = null;
     }
 
-
+    /** Reads and parses a sensor description uploaded from the web
+     * form (as an uploaded file, or via a TEXTAREA element 
+     */
     void readUploadedFile() {
 	try {
 
@@ -80,6 +82,10 @@ public class Mainweb extends ResultsBase {
 
 		    if (!fieldName.equals( "sensor"))  {
 			infomsg += "<p>Ignoring file field parameter named "+fieldName+", with file Name "+ fileName+"</p>\n";
+		    } else if (fileName.equals("")) {
+			error = true;
+			errmsg = "It appears that you have not uploaded a file! Please go back to the file upload form, and make sure to pick an existing sensor description file!";
+			return;
 		    } else {
 			sd.sensorFileName= fileName;
 			sensorFile = item;
@@ -106,7 +112,7 @@ public class Mainweb extends ResultsBase {
 	}  catch (Exception _e) {
 	    e = _e;
 	    error = true;
-	    errmsg = "Failed to receive uploaded file, or to parse the file data. Error: " + e.getMessage();
+	    errmsg = "Failed to receive uploaded file, or to parse the file data. Please make sure that you are uploading file in the correct format! Error: " + e.getMessage();
 	}
     }
 

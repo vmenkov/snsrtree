@@ -57,7 +57,7 @@ public class PresentedSensor extends PresentedData {
     String makeGraphTitle() {
 	String text = 
 	    (stage==1) ? "Non-mixed policies for sensor ":
-	    (stage==2) ? "Mixed-action policies for sensor ": "??? ";
+	    (stage==2) ? "Naive policy mixing for sensor ": "??? ";
 	text += " {";
 	int cnt=0;
 	for(Test sensor: lastSensorsUsed) {
@@ -122,14 +122,12 @@ public class PresentedSensor extends PresentedData {
 
 	Point2D.Double point;
 
-	point = policy2point(Policy.RELEASE, context.pi);
-	circle( g2d, at.transform(point, null));
-	point  = policy2point(Policy.INSPECT, context.pi);
-	circle( g2d, at.transform(point, null));
+	//point = policy2point(Policy.RELEASE, context.pi);
+	//circle( g2d, at.transform(point, null));
 	
-	for(int i=0; i<policies.length+1; i++) {
+	for(int i= -1; i<policies.length+1; i++) {
 
-	    PolicySignature pol = policies[i];
+	    PolicySignature pol = (i<0) ? Policy.RELEASE : policies[i];
 	    if (pol.getPolicyCost(context.pi) > 1) break;
 
 	    point = policy2point(pol, context.pi);
@@ -150,6 +148,10 @@ public class PresentedSensor extends PresentedData {
 		g2d.draw( at.createTransformedShape(line));
 	    }
 	}
+
+	point  = policy2point(Policy.INSPECT, context.pi);
+	circle( g2d, at.transform(point, null));
+
 
     }
    

@@ -23,8 +23,12 @@
    %>
 <p class="normal">Error: <em class="errMsg"><%= main.errmsg %></em></p>
 <% if (main.e != null) { %>
-<p><%= main.e %>
-<pre><%= main.exceptionTrace() %></pre></p><%
+<p><%= main.e %></p>
+<hr>
+<p>Details of the exception, if you care for them:</p>
+
+<p><small>
+<pre><%= main.exceptionTrace() %></pre></small></p><%
       }
    } else if (r.q==null) {
 %>
@@ -56,7 +60,9 @@ value="<%=(r.budget!=null) ? r.budget.toString(): ""%>">
 <% String bgc[] = {"","","",""};
    bgc[r.stage] = "bgcolor=\"#D09000\"";
 %>
-<form  action="mainweb.jsp" method="post"><table>
+<!-- 
+<form  action="mainweb.jsp" method="post">
+<table>
        <tr><td>Show ...</td?</tr>
        <tr><td <%=bgc[1]%>>	
        <button name="stage" value="1">1. Non-mixed policies only</button>
@@ -68,6 +74,21 @@ value="<%=(r.budget!=null) ? r.budget.toString(): ""%>">
        <button name="stage" value="3">3. Fully randomized deceptive strategy</button>
        </td></tr>
 </table></form>
+-->
+
+<table>
+	<tr><td>Show ...</td?</tr>
+	<tr><td <%=bgc[1]%>><form  action="mainweb.jsp" method="post"><br>
+	<input type=hidden name="stage" value="1">
+	<input type="submit" name="1" value="1. Non-mixed policies only"></form></td></tr>
+	<tr><td <%=bgc[2]%>><form action="mainweb.jsp"  method="post"><br>
+	<input type=hidden name="stage" value="2">
+	<input type="submit" name="2" value="2. Naive mixing"></form></td></tr>
+	<tr><td <%=bgc[3]%>><form action="mainweb.jsp"  method="post"><br>
+	<input type=hidden name="stage" value="3">
+	<input type="submit" name="3" value="3. Fully randomized deceptive strategy"></form></td></tr>
+</table>
+
 </td>
 <td rowspan=2>
 <% if (r.presented==null) { %> No data generated! <%

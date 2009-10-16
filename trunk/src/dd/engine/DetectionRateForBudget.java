@@ -44,7 +44,9 @@ public class  DetectionRateForBudget {
 		// p2 is over the budget, which means that p1 is
 		// the best policy within budget
 
-		if (canMix && c1 < budget && p2.getDetectionRate()>p1.getDetectionRate()) {
+		//&& p2.getDetectionRate()>p1.getDetectionRate()) {
+
+		if (canMix && c1 < budget) {
 		    w = (c2-budget)/(c2-c1);
 		    actualBudget = budget;
 		    detectionRate = p1.getDetectionRate()  * w  + 
