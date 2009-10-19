@@ -196,6 +196,10 @@
   </copy -->
 <target name="deploy"  depends="prepare,compile">
   <copy  file="etc/web.xml" tofile="${deploy.home}/WEB-INF/web.xml"/>
+  <mkdir  dir="${deploy.home}/WEB-INF/sensors"/>
+  <copy todir="${deploy.home}/WEB-INF/sensors">
+    <fileset dir="sensors"><include name="**/*.txt"/></fileset>    
+  </copy>
   <copy todir="${deploy.lib}">
     <fileset dir="../batik-1.7/lib"><include name="**/*.jar"/></fileset>    
   <!-- /copy>
@@ -236,7 +240,11 @@
 		excludes="classes/**,**/.svn,**/*.bak,**/*.orig,**/*~,run.sh"/>
     <zipfileset prefix="snsrtree" file="run.sh" filemode="755" />
   </zip>
+  <exec executable="grep">
+      <arg line="version src/dd/engine/Main.java"/>
+  </exec>
 </target>
+
 
  <!-- zip destfile="../snsrtree.zip" basedir="." >
        includes="snsrtree/**" excludes="snsrtree/classes/**,**/*.bak,**/*.java.orig,**/*~"    / -->

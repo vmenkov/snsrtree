@@ -3,7 +3,7 @@
 <%@ page import="dd.engine.*" %>
 <%@ page import="java.io.*" %>
 <% 
-        ResultsBase main=new ResultsBase(request);
+        DemoResultsBase main=new DemoResultsBase(request);
 	DemoSessionData r= main.sd;
 %>
 
@@ -27,7 +27,7 @@ upload it. The format is illustrated in the text box below.
 <table border=1>
 <tr> <td>
 Option 1 - upload a description file:  
-<form  enctype="multipart/form-data" action="mainweb.jsp" method="post">
+<form  enctype="multipart/form-data" action="demomain.jsp" method="post">
 Upload a description file: <input type="file" size="80" name="sensor">
 <input type="submit" value="Upload file" />
 </form>
@@ -36,7 +36,7 @@ Upload a description file: <input type="file" size="80" name="sensor">
 <tr><td>
 <p>Option 2 - edit the sample sensor description (or just upload it as it is):
 <br>
-<form  enctype="multipart/form-data" action="mainweb.jsp" method="post">
+<form  enctype="multipart/form-data" action="demomain.jsp" method="post">
 <textarea name="sensordata" cols="20" rows="10"><% 
 if (r.q!=null && r.sensorFromTextarea) { %> <%= r.q.toString1() %> <%
 } else {%>

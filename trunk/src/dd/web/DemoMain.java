@@ -15,9 +15,9 @@ import org.apache.commons.fileupload.servlet.*;
 import org.apache.commons.fileupload.disk.*;
 
 /** Used by mainweb.jsp */
-public class Mainweb extends ResultsBase {
+public class DemoMain extends DemoResultsBase {
  
-    public Mainweb(HttpServletRequest request) {
+    public DemoMain(HttpServletRequest request) {
 	super(request);
 
 	if (ServletFileUpload.isMultipartContent(request)) {

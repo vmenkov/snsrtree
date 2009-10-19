@@ -4,9 +4,9 @@ import java.io.*;
 import java.util.*;
 
 
-/** An instance of a Test represents a particular single multi-channel test.
-    This is the simplest type of a Device; more complicated Devices are
-    combined from Tests.
+/** An instance of a Test represents a particular single multi-channel
+    test (sensor).  This is the simplest type of a Device; more
+    complicated Devices are combined from Tests.
  */
 
 public class Test implements Cloneable {
@@ -23,7 +23,9 @@ public class Test implements Cloneable {
     private int[] approxMap = null;
 
     /** This value may be more than one if this Test instance stands
-     * for several sensors with identical characteristics
+     * for several sensors with identical characteristics (cost and
+     * ROC curve). This allows more efficient Frontier Finder
+     * implementation than having several Test instances.
      */
     int nCopies=1;
     public int getNCopies() { return nCopies; }
