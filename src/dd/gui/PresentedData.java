@@ -6,6 +6,10 @@ import java.awt.*;
 import java.awt.geom.*;
 import java.awt.geom.AffineTransform;
 
+import javax.swing.*;
+//import javax.swing.event.*;
+
+
 import dd.engine.*;
 
 /** It is public because it's used by the web GUI, too */
@@ -49,6 +53,21 @@ abstract public class PresentedData {
 	throw new AssertionError("Not supported");
     }
 
+   public void paintFrontier(Graphics2D g2d, boolean fromGUI) {
+       paintFrontier(g2d,  getRecommendedDim(), fromGUI);
+   }
+
+
+    private Dimension dim =  new java.awt.Dimension( 800, 800);  // (w h)
+    public Dimension getRecommendedDim() {
+	return dim;
+    }
+
+    public void setRecommendedDim(Dimension d) {
+	dim = d;
+    }
+
+
     protected static AffineTransform drawGrid(Graphics2D g2d, Dimension bounds, double realWidth, String title, boolean web) {
 	FontMetrics fm = g2d.getFontMetrics();
 	int textHt  = fm.getMaxAscent();
@@ -77,6 +96,9 @@ abstract public class PresentedData {
 	g2d.drawString("Detection rate     " + title,(int)p1.getX() + 5,
 		       (int)p1.getY()-2);
 
+	int modX = (bounds.width > 300) ? 1 : 2;
+
+
 	NumberFormat fmt = new DecimalFormat("0.0");
 	int maxKx=  (int)(realWidth * 10);
 	for(int k=1; k<= maxKx; k++) {
@@ -88,9 +110,10 @@ abstract public class PresentedData {
 	    g2d.setPaint(Color.blue);
 	    g2d.draw( new Line2D.Double(p1, p1q));
 
-	    g2d.drawString(fmt.format(x), 
-			   (int)p1.getX(), (int)p1.getY()+textHt+2);
-
+	    if (k% modX ==0) {
+		g2d.drawString(fmt.format(x), 
+			       (int)p1.getX(), (int)p1.getY()+textHt+2);
+	    }
 
 	    if (x+0.01<realWidth) {
 		g2d.setPaint(Color.yellow);
@@ -163,6 +186,16 @@ abstract public class PresentedData {
 	g2d.draw( new Line2D.Double(pt1, pt2));
     }
 
+    /*
+    private Dimension dim =  new Dimension( 800, 800);  // (w h)
+    public Dimension getRecommendedDim() {
+	return dim;
+    }
+
+    public void setRecommendedDim(Dimension d) {
+	dim = d;
+    }
+    */
 
 }
 

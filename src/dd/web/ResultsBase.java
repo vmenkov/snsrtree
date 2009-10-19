@@ -5,26 +5,20 @@ package dd.web;
 
 import java.io.*;
 import java.util.*;
-import dd.engine.*;
 
 import javax.servlet.*;
 import javax.servlet.http.*;
 
-import org.apache.commons.fileupload.*;
-import org.apache.commons.fileupload.servlet.*;
-import org.apache.commons.fileupload.disk.*;
+//import org.apache.commons.fileupload.*;
+//import org.apache.commons.fileupload.servlet.*;
+//import org.apache.commons.fileupload.disk.*;
 
-import dd.engine.*;
-import dd.gui.*;
+//import dd.engine.*;
+//import dd.gui.*;
 
 public class ResultsBase {
 
     HttpServletRequest request;
-    //HttpSession session;
-
-    /** All the data that are meant to be persistent between requests
-     * in the same session */
-    public DemoSessionData sd;
 
     /** Will be set to true if an error happened */
     public boolean error = false;
@@ -40,22 +34,27 @@ public class ResultsBase {
 
     public ResultsBase(HttpServletRequest _request) {
 	try {
-	request = _request;
-
-	sd = DemoSessionData.getDemoSessionData(request);
-
-	infomsg+= "<br>Plain params:";
-	for(Enumeration en=request.getParameterNames(); en.hasMoreElements();){
-	    String name = (String)en.nextElement();
-	    infomsg += "<br>"+name + "=" + request.getParameter(name);	    
-	}
+	    request = _request;
 	    
+	    infomsg+= "<br>Plain params:";
+	    for(Enumeration en=request.getParameterNames(); en.hasMoreElements();){
+		String name = (String)en.nextElement();
+		infomsg += "<br>"+name + "=" + request.getParameter(name);	    
+	    }	    
 	}  catch (Exception _e) {
+	    setEx(_e);
+	}	
+    }
+
+    void setEx(Exception _e) {
+	error = true;
+	if (e instanceof WebException) {
+	    // this is our own exception - we known where it came from,
+	    // so no need to print stack ect
+	} else {
 	    e = _e;
-	    error = true;
-	    errmsg = "Error: " + e.getMessage();
 	}
-	
+	errmsg = "Error: " + e.getMessage();
     }
 
     /** Returns the exception's stack trace, as a plain-text string 

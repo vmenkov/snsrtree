@@ -5,7 +5,7 @@ import java.text.*;
 
 import java.awt.*;
 import java.awt.geom.*;
-import javax.swing.*;
+//import javax.swing.*;
 
 import dd.engine.*;
 

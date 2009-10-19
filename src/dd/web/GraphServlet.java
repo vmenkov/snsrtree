@@ -10,9 +10,9 @@ import dd.gui.*;
 import javax.servlet.*;
 import javax.servlet.http.*;
 
-import org.apache.commons.fileupload.*;
-import org.apache.commons.fileupload.servlet.*;
-import org.apache.commons.fileupload.disk.*;
+//import org.apache.commons.fileupload.*;
+//import org.apache.commons.fileupload.servlet.*;
+//import org.apache.commons.fileupload.disk.*;
 
 //------------------------------------------------
 
@@ -41,13 +41,53 @@ import org.apache.batik.dom.svg.SVGDOMImplementation;
 /** This servlet produces PNG or JPEG images for the DNDO Demo application
  */
 public class GraphServlet extends HttpServlet {
+
+    private long getSerial(HttpServletRequest request) {
+	try {
+	    String s = request.getParameter("serial");
+	    if (s!=null) {
+		return Long.parseLong(s);
+	    } 
+	} catch(Exception e) {}
+	return -1;
+    }
+
+    private PresentedData getPresented(HttpServletRequest request) throws WebException, IOException {
+	String caller = request.getParameter("caller");
+	if (caller==null) caller = "demo"; // default
+
+	long serial = getSerial(request);
+
+	if (caller.equals("ff")) {
+	    FFSessionData r = FFSessionData.getFFSessionData(request);
+	    for(int i=0; i<r.presentedSensors.length && r.presentedSensors[i]!=null; i++) {
+		if (r.presentedSensors[i].serial == serial) 
+		    return r.presentedSensors[i];
+	    }
+	    return new PresentedFailure(new String[] {
+		    "Graph data expired from cache?",
+		    "serial=" + serial});
+	    
+	} else {
+	    // demo
+	    DemoSessionData r = DemoSessionData.getDemoSessionData(request);
+	    return r.presented;
+	}
+    }
+
     public void	doGet(HttpServletRequest request,HttpServletResponse response) {
-	DemoSessionData r = DemoSessionData.getDemoSessionData(request);
 
 
 	try {
-	    //  r.presented must have been set in main.jsp
-	    if (r.presented != null) {
+	    PresentedData presented = getPresented(request);
+	    if (presented==null) 
+		presented=new PresentedFailure(new String[] {
+			"Session expired?",
+			"serial=" + getSerial(request)});
+
+
+	    //  presented must have been set in main.jsp
+	    if (presented != null) {
 		
 		// Get a DOMImplementation.
 		DOMImplementation domImpl =
@@ -62,10 +102,10 @@ public class GraphServlet extends HttpServlet {
 		
 		//  Ask our DDPanel to set the canvas size and to render into the
 		//  SVG Graphics2D implementation.
-		Dimension dim =  new Dimension( 800, 800);  // (w h)
+		Dimension dim =  presented.getRecommendedDim();
 		svgGenerator.setSVGCanvasSize(dim);
 		
-		r.presented.paintFrontier(svgGenerator, dim, false);
+		presented.paintFrontier(svgGenerator, dim, false);
 		
 		// Writing data in SVG format to an in-memory String
 		// (for later conversion)

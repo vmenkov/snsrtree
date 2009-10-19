@@ -7,7 +7,7 @@
 <!-- %@ taglib prefix="my" uri="http://jakarta.apache.org/tomcat/jsp2-example-taglib"% -->
 
 <% 
-        Mainweb main=new Mainweb(request);
+        DemoMain main=new DemoMain(request);
 	DemoSessionData r= main.sd;
 %>
 
@@ -32,7 +32,7 @@
       }
    } else if (r.q==null) {
 %>
-<p>No valid sensor data supplied. Please go to the <a href="sensorForm.jsp">sensor upload form</a> to upload a sensor description.
+<p>No valid sensor data supplied. Please go to the <a href="demosensorform.jsp">sensor upload form</a> to upload a sensor description.
 </p>
 <%
 } else {
@@ -40,16 +40,16 @@
 
 <table border=1>
 <tr> <td colspan=2>
-Sensor loaded: <%= r.sensorFileName %>  (<a href="sensorForm.jsp">Change sensor</a>)
+Sensor loaded: <%= r.sensorFileName %>  (<a href="demosensorform.jsp">Change sensor</a>)
 </td></tr>
 <!-- tr> <td colspan=2>
-<form  action="mainweb.jsp" method="post">
+<form  action="demomain.jsp" method="post">
 Expected proportion of "bad" objects (pi, between 0.0 and 1.0):
  <input name="pi" value="<%=r.context.pi%>">
  <input type="submit" name="updatepi" value="Update graph">
 </td></tr -->
 
-<tr> <td colspan=2><form action="mainweb.jsp" method="post">
+<tr> <td colspan=2><form action="demomain.jsp" method="post">
 Budget (between 0.0 and 1.0): <input type="text" name="budget" 
 value="<%=(r.budget!=null) ? r.budget.toString(): ""%>">
 <input type="submit" value="Enter">
@@ -61,7 +61,7 @@ value="<%=(r.budget!=null) ? r.budget.toString(): ""%>">
    bgc[r.stage] = "bgcolor=\"#D09000\"";
 %>
 <!-- 
-<form  action="mainweb.jsp" method="post">
+<form  action="demomain.jsp" method="post">
 <table>
        <tr><td>Show ...</td?</tr>
        <tr><td <%=bgc[1]%>>	
@@ -78,13 +78,13 @@ value="<%=(r.budget!=null) ? r.budget.toString(): ""%>">
 
 <table>
 	<tr><td>Show ...</td?</tr>
-	<tr><td <%=bgc[1]%>><form  action="mainweb.jsp" method="post"><br>
+	<tr><td <%=bgc[1]%>><form  action="demomain.jsp" method="post"><br>
 	<input type=hidden name="stage" value="1">
 	<input type="submit" name="1" value="1. Non-mixed policies only"></form></td></tr>
-	<tr><td <%=bgc[2]%>><form action="mainweb.jsp"  method="post"><br>
+	<tr><td <%=bgc[2]%>><form action="demomain.jsp"  method="post"><br>
 	<input type=hidden name="stage" value="2">
 	<input type="submit" name="2" value="2. Naive mixing"></form></td></tr>
-	<tr><td <%=bgc[3]%>><form action="mainweb.jsp"  method="post"><br>
+	<tr><td <%=bgc[3]%>><form action="demomain.jsp"  method="post"><br>
 	<input type=hidden name="stage" value="3">
 	<input type="submit" name="3" value="3. Fully randomized deceptive strategy"></form></td></tr>
 </table>
@@ -93,7 +93,7 @@ value="<%=(r.budget!=null) ? r.budget.toString(): ""%>">
 <td rowspan=2>
 <% if (r.presented==null) { %> No data generated! <%
 } else { %>
-<img src="GraphServlet?stage=<%=r.stage%>&serial=<%=r.presented.serial%>" alt="Loading cost/detection rate plot, stage <%=r.stage%>...">
+<img src="../GraphServlet?stage=<%=r.stage%>&serial=<%=r.presented.serial%>" alt="Loading cost/detection rate plot, stage <%=r.stage%>...">
 <% } %>
 </td>
 </tr>

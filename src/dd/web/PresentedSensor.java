@@ -19,7 +19,7 @@ public class PresentedSensor extends PresentedData {
 
     final private int stage;
     final private FrontierContext context;
-    final private Test sensor;
+    final Test sensor;
     final private Double budget;
 
 
