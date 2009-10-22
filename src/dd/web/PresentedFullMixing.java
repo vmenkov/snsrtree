@@ -38,7 +38,7 @@ public class PresentedFullMixing extends PresentedFrontier {
 
 
     /** Produces a brief description of the graph, to be displayed above it */
-    String makeGraphTitle() {
+    public String makeGraphTitle() {
 	String text = "Fully randomized deceptive strategy";
 	text += " {";
 	int cnt=0;
