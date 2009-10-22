@@ -104,7 +104,7 @@ if (r.presentedFrontier==null) {
 <strong><%=r.presentedFrontier.makeGraphTitle()%></strong><br>
 Computed at <%=dateFormat.format(r.presentedFrontier.getEndTime().getTime())%>, cost =  <%= cost %>
 <br>
-<img src="../GraphServlet?caller=ff&stage=3&serial=<%=r.presentedFrontier.serial%>" alt="Computing extremal frontier. Please wait...">
+<img src="../GraphServlet?caller=ff&stage=3&serial=<%=r.presentedFrontier.serial%>" alt="Loading extremal frontier graph...">
 </div>
 <%
 }

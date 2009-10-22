@@ -12,18 +12,34 @@
 for optimal management of multiple sensors or tests for the presence of a
 nuclear threat</h1>
 
-<div class=Section1>
+<div class=Section1 align=center>
 
-<p align=center>&nbsp;</p>
-
-<p align=center><strong><i><span lang=PT-BR>Paul
+<p><strong><i><span lang=PT-BR>Paul
 B. Kantor (paul.kantor@rutgers.edu) &amp; Endre Boros (boros@rutcor.rutgers.edu)</span></i></strong><br>
 <i>Principal Investigators</i></p>
 
-<p align=center><strong><i>Vladimir Menkov</i></strong><br>
+<p><strong><i>Vladimir Menkov</i></strong><br>
 <i>Lead Programmer</i></p>
+</div>
 
-<h2>1. Overview</h2>
+
+<h2>Contents</h2>
+<!-- Table of contents prepared with mkToc.pl -->
+<ol>
+<li><a href="#1">1. Overview</a>
+<ul>
+<li><a href="#3.1">3.1. Mixing and Deception</a>
+<li><a href="#3.2">3.2. Preserving Information to Maximize Detection</a>
+<li><a href="#3.3">3.3. Stochastic Independence and Dynamic Programming</a>
+</ul>
+<li><a href="#demos">DNDO Demos</a>
+<li><a href="#res">Web Resources</a>
+<li><a href="#papers">More Papers</a>
+</ol>
+
+
+<div class=Section1>
+<h2><a name="1">1. Overview</a></h2>
 
 
 <p>This site provides a gateway to some demonstration software
@@ -31,7 +47,7 @@ and the major software package, SNSRTREE developed at Rutgers University with su
 Homeland Security under NSF Grant Number CBET-0735910 and DNDO Contract Number DHS#2008-DN-077-ARI003-02,
 in the program directed by Dr. Austin Kuhn. </p>
 
-<h2>2. The Power of a Test or Sensor: The ROC curve</h2>
+<h2><a name="2">2. The Power of a Test or Sensor: The ROC curve</2></h2>
 
 <p>It is well known that a real test or sensor does not give
 perfect information. In fact, the way in which is fails to be perfect <i>cannot
@@ -40,8 +56,6 @@ fundamentally different kinds of mistakes (false negatives, and false
 positives). Their relative importance depends on how serious they are, as
 mistakes, and also depends on how likely it is that there are true positives to
 be detected. </p>
-
-<p>&nbsp;</p>
 
 <p>Tests and sensors come in many types, and it is important to
 have the best mathematical representation of how they perform, in order to
@@ -71,12 +85,12 @@ and the 100% level is the fraction of threats that will be missed. There is a
 well-developed statistical theory surrounding the ROC curve, and we have drawn
 on it in developing our dynamic programming algorithm as described below. </p>
 
-<h2>3. Conceptual Foundations</h3>
+<h2><a name="3">3. Conceptual Foundations</a></h3>
 
 <p>The software demonstrates three very important principles:
 mixing and deception; preserving information; and dynamic programming. </p>
 
-<h3>3.1. Mixing and Deception</h3>
+<h3><a name="3.1">3.1. Mixing and Deception</a></h3>
 
 <p>The first principle is that most strategies will have, for a
 specific number of incoming harmless and harmful packages, some
@@ -117,7 +131,7 @@ complex mixing which is the third example, and can produce substantial gains in
 detection at the same cost or, alternatively, if the detection level is deemed
 satisfactory the strategy can be used to reduce costs.</p>
 
-<h3>3.2. Preserving Information to Maximize Detection</h3>
+<h3><a name="3.2">3.2. Preserving Information to Maximize Detection</a></h3>
 
 <p>The second major principle underlying our work is that when
 there is more than one test, the information gained in the first test, even
@@ -149,7 +163,7 @@ href="http://rutcor.rutgers.edu/pub/rrr/reports2006/26_2006.pdf"
 title="RUTCOR 26-2006"> Large scale LP model for finding optimal container
 inspection strategies</a>. Technical Report. RUTCOR 26-2006. </p>
 
-<h3>3.3. Stochastic Independence and Dynamic Programming</h3>
+<h3><a name="3.3">3.3. Stochastic Independence and Dynamic Programming</a></h3>
 
 <p>The third key feature of our work applies to the important case
 of tests that are "stochastically independent". For this widely occurring
@@ -159,20 +173,23 @@ every possible budget</i>. This is done using a powerful mathematical technique
 called dynamic programming. </p>
 
 <p>The details are quite technical, and we provide a link below
-to a technical report. However, intuitively it can be understood this way: </p>
+to a technical report. However, intuitively it can be understood this way: 
+<ul>
 
-<p style='text-indent:36.0pt'>We reason backwards, from the
-last sensor in the chain toward the initial description of a complete policy. </p>
+<li>We reason backwards, from the
+last sensor in the chain toward the initial description of a complete policy. 
 
-<p style='text-indent:36.0pt'>What our software does is to find
+<li>What our software does is to find
 for each individual sensor, and then for all the individual sensors considered
 together, the very best collection of strategies describing all possible costs.
 </p>
 
-<p style='text-indent:36.0pt'>What might happen is that with
+<li>What might happen is that with
 low budget we would prefer using some particular one of the sensors, while with
 a higher budget we would prefer using another, and in between we might have to
-use a mixture as described above in Section 3.1. </p>
+use a mixture as described above in Section 3.1. 
+</ul>
+</p>
 
 <p>With this information stored in the computer, our program
 then asks "what if?": "What would happen if we <b><i>prefixed</i></b> <i>each
@@ -218,19 +235,19 @@ Sequential Inspection Strategies.</a> RUTCOR RRR-14-2008.</p>
 
 </div>
 
-<h2>DNDO Demos</h2>
+<h2><a name="demos">DNDO Demos</a></h2>
 <ol>
 <li><a href="dd/index.html">Simple single-sensor demo</a>
 <li><a href="dd/ff/index.html">Frontier Finder Lite</a> (a preliminary version)
 </ol>
 
-<h2>Web Resources</h2>
+<h2><a name="res">Web Resources</a></h2>
 <ul>
 <li><a href="http://code.google.com/p/snsrtree/">SNSRTREE</a> on Google Code
 <li><a href="https://sakai.rutgers.edu/portal/site/117506c2-abfb-49c0-0060-cfb1c77bfdff">Project archives on Sakai (members only)</a>
 </ul>
 
-<h2>More Papers</h2>
+<h2><a name="papers">More Papers</a></h2>
 <ul>
 <li><a href="http://rutcor.rutgers.edu/pub/rrr/reports2007/26_2007.pdf">RRR #26-2007</a> - Deceptive Detection Methods for Optimal Security with Inadequate Budgets: the Screening Power Index
 </ul>
