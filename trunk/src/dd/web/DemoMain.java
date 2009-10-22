@@ -22,7 +22,12 @@ public class DemoMain extends DemoResultsBase {
 
 	if (ServletFileUpload.isMultipartContent(request)) {
 	    // The only place this is done is in file upload
-	    readUploadedFile();
+	    UploadingResults u = readUploadedFile();
+	    if (!error) {
+		sd.q = u.q;
+		sd.sensorFromTextarea = u.sensorFromTextarea;
+		sd.sensorFileName = u.sensorFileName;
+	    }
 	    sd.stage = 1; // reset stage on a new file
 	} 
 
@@ -35,6 +40,7 @@ public class DemoMain extends DemoResultsBase {
     /** Reads and parses a sensor description uploaded from the web
      * form (as an uploaded file, or via a TEXTAREA element 
      */
+    /*
     void readUploadedFile() {
 	try {
 
@@ -46,8 +52,8 @@ public class DemoMain extends DemoResultsBase {
 	    // Create a new file upload handler
 	    ServletFileUpload upload = new ServletFileUpload(factory);
 	    
-	    // Parse the request
-	    List /* FileItem */ items = upload.parseRequest(request);
+	    // Parse the request  
+	    List  items = upload.parseRequest(request);
 	    
 	    // Process the uploaded items
 	    Iterator iter = items.iterator();
@@ -115,22 +121,7 @@ public class DemoMain extends DemoResultsBase {
 	    errmsg = "Failed to receive uploaded file, or to parse the file data. Please make sure that you are uploading file in the correct format! Error: " + e.getMessage();
 	}
     }
-
-
-    /*
-    void readUploadedTextareaData() {
-	try {
-	    String name = "sensordata";
-	    String text =(request.getParameter(name));
-	    infomsg += name + "\n" + text;
-	} catch (Exception _e) {
-		e = _e;
-		error = true;
-		errmsg = "Failed to receive uploaded sensor description, or to parse it. Error: " + e.getMessage();
-	    }
-    }
-    */
-
+*/
 
 
 }

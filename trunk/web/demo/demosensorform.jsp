@@ -9,6 +9,7 @@
 
 <html>
   <head>
+   <link rel="icon" type="image/vnd.microsoft.icon" href="../favicon16.ico">
     <title>DNDO Demo: upload sensor description (ver. <%=Main.version%>)</title>
   </head>
   <body>
@@ -68,6 +69,13 @@ order of decreasing slope.</p>
 
 </td></tr>
 </table> 
+
+
+<hr>
+<div align=center>
+Back to the <a href="/">Main page</a>
+</div>
+
 
 </body>
 </html>

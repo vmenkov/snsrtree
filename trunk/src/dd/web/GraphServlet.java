@@ -52,6 +52,7 @@ public class GraphServlet extends HttpServlet {
 	return -1;
     }
 
+    /** Finds the stored graphn that we are called to plot now */
     private PresentedData getPresented(HttpServletRequest request) throws WebException, IOException {
 	String caller = request.getParameter("caller");
 	if (caller==null) caller = "demo"; // default
@@ -60,6 +61,12 @@ public class GraphServlet extends HttpServlet {
 
 	if (caller.equals("ff")) {
 	    FFSessionData r = FFSessionData.getFFSessionData(request);
+
+	    if (r.presentedFrontier != null &&
+		r.presentedFrontier.serial == serial) {
+		return r.presentedFrontier;
+	    }
+
 	    for(int i=0; i<r.presentedSensors.length && r.presentedSensors[i]!=null; i++) {
 		if (r.presentedSensors[i].serial == serial) 
 		    return r.presentedSensors[i];

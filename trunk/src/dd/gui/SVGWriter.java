@@ -115,6 +115,8 @@ public class SVGWriter extends JFrame {
 		ImageTranscoder t= isJPG? new JPEGTranscoder():
 		    new PNGTranscoder();
 		t.addTranscodingHint(JPEGTranscoder.KEY_QUALITY,new Float(.8));
+		// for some reason I was getting PNG files with black backgorund...
+		t.addTranscodingHint(ImageTranscoder.KEY_BACKGROUND_COLOR, Color.white);
 
 		// Set the transcoder input and output.
 

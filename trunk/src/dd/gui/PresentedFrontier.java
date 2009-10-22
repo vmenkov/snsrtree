@@ -15,7 +15,7 @@ import dd.engine.*;
  This class is public because it's used by the web GUI, too 
  */
 public class PresentedFrontier extends PresentedData {
-    final protected AnnotatedFrontier frontier;
+    final public AnnotatedFrontier frontier;
 
     /** (Optionally) additional frontiers to display on the same graph */
     Vector<AnnotatedFrontier> otherFrontiers;//=new Vector<AnnotatedFrontier>();
@@ -30,13 +30,16 @@ public class PresentedFrontier extends PresentedData {
     }
 
     /** Produces a brief description of the graph, to be displayed above it */
-    String makeGraphTitle() {
+    public String makeGraphTitle() {
 	String text = "Extremal frontier for sensor set {";
 	int cnt=0;
 	for(Test sensor: lastSensorsUsed) {
-	    if (cnt++ >0) 	    text += " ";
-	    if (sensor.getNCopies()>1) text = text +sensor.getNCopies()+ "*";
-	    text += sensor.getName();
+	    int n = sensor.getNCopies();
+	    if (n> 0) {
+		if (cnt++ >0) 	    text += " ";
+		if (sensor.getNCopies()>1) text = text +sensor.getNCopies()+ "*";
+		text += sensor.getName();
+	    }
 	}
 	text += "}";
 	text += " eps=" + frontier.getEps();
@@ -130,5 +133,7 @@ public class PresentedFrontier extends PresentedData {
 				   pol.getDetectionRate());
     }
     */
+
+    public Calendar getEndTime() { return frontier.getEndTime(); }
 
 }

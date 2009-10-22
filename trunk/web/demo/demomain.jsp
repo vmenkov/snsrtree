@@ -13,6 +13,7 @@
 
 <html>
   <head>	
+   <link rel="icon" type="image/vnd.microsoft.icon" href="favicon16.ico">
    <title>DNDO Mixed Policies Demo (ver. <%=Main.version%>)</title>
   </head>
   <body>
@@ -153,6 +154,11 @@ The green curve, is shown, is from stage 2.
 </table> 
 
 <%}%>
+
+<hr>
+<div align=center>
+Back to the <a href="/">Main page</a>
+</div>
 
 <hr>
 <p><small><em>

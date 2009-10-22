@@ -26,6 +26,12 @@
       <url-pattern>/GraphServlet</url-pattern>
     </servlet-mapping>
 
+    <!-- for  "favicon.ico" -->
+    <mime-mapping>
+        <extension>ico</extension>
+        <mime-type>image/x-icon</mime-type>
+    </mime-mapping>
+
 
 
 

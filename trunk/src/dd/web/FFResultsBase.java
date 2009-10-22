@@ -26,10 +26,21 @@ public class FFResultsBase extends ResultsBase {
      * in the same session */
     public FFSessionData sd;
 
+    /** The value of param "id", if supplied */
+    public int id = -1;
+
     public FFResultsBase(HttpServletRequest _request) {
 	super(_request);
 	try {
 	    sd = FFSessionData.getFFSessionData(request);	    
+
+	    String s = request.getParameter("id");
+	    if (s!=null) {
+		try {
+		    id = Integer.valueOf(s);
+		} catch(Exception ex) {}
+	    }
+
 	}  catch (Exception _e) {
 	    setEx(_e);
 	}

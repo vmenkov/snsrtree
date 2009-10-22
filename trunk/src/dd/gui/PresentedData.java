@@ -48,6 +48,12 @@ abstract public class PresentedData {
 	lastSensorsUsed = sensors;    
     }
 
+    /** Produces a brief description of the graph, to be displayed above it */
+    public String makeGraphTitle() {
+	return "Some kind of a graph...";
+    }
+
+
     public void paintFrontier(Graphics2D g2d, Dimension bounds, boolean fromGUI) {
 	// FIXME
 	throw new AssertionError("Not supported");

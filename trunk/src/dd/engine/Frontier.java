@@ -267,7 +267,7 @@ public class Frontier extends FrontierInfo {
 
     public static AnnotatedFrontier buildFrontier(Test t[], Vector<AnnotatedFrontier> others) throws DDException {
 	int maxSetSizeOrig = SensorSet.maxSetSize(t);
-	return buildFrontier(t, Options.getEps(), Options.getVSMethod(),
+	return buildFrontier(t, Options.getZeroPiContext(), 
 			     Options.getMaxDepth(maxSetSizeOrig), others);
     }
 
@@ -283,11 +283,12 @@ public class Frontier extends FrontierInfo {
 	simply an optimization over multiple sensors with identical
 	detection curves.
 
-	@param eps "Merge" frontier points located within eps from each in
-	both Cost and DetectionRate direction. It is desirable to always use a
-	non-zero - even if very small - eps, in order to prevent
-	near-duplicate points appearing on the hull due to floating-point
-	computational errors.
+	@param context Contains the VS method and eps. That's used to
+	"merge" frontier points located within eps from each in both
+	Cost and DetectionRate direction. It is desirable to always
+	use a non-zero - even if very small - eps, in order to prevent
+	near-duplicate points appearing on the hull due to
+	floating-point computational errors.
 
 	@param maxDepth Maximum size of decision trees included into
 	the frontier. If this value is equal or greater than t.length
@@ -298,10 +299,12 @@ public class Frontier extends FrontierInfo {
 	frontiers to this vector, for a post-mortem
     */
     public static AnnotatedFrontier 
-	buildFrontier(Test t[], double eps, VSMethod vs, int maxDepth, 
+	buildFrontier(Test t[], FrontierContext context, int maxDepth, 
 		      Vector<AnnotatedFrontier> others) throws DDException {
 
 	final boolean fastPurge = true; //delete old frontiers fast to save mem
+
+	if (context.multiPi || context.pi != 0) throw new IllegalArgumentException("Wrong method for this context!");
 
 	int n = t.length;
 	int maxCnt[]  = new int[n];
@@ -316,7 +319,7 @@ public class Frontier extends FrontierInfo {
 
 	System.out.println("Build frontiers: "+n + " sensors, maxDepth=" + 
 			   (maxDepth<0? "ALL" : ""+maxDepth)+
-			   ", VS method="+vs+" with eps=" + eps);
+			   ", VS method="+context.vs+" with eps="+context.eps);
 	Calendar startTime = Calendar.getInstance();
 
 	if (n >= Integer.SIZE-1) {
@@ -329,13 +332,11 @@ public class Frontier extends FrontierInfo {
 	// Storing the frontier for each of the 2^n subsets
 	FrontierInfo frontiers[] = new FrontierInfo[pow];
 	
-	FrontierContext context = new FrontierContext(false, 0, vs, eps); 
 	// start filling frontiers[]...
 	// Empty set:
 	frontiers[0] = new Frontier(context); // an empty (R-I) frontier
 
-	if (maxDepth <= 0) return new AnnotatedFrontier(frontiers[0].getPolicies(), 
-							frontiers[0].context,
+	if (maxDepth <= 0) return new AnnotatedFrontier(frontiers[0],
 							maxDepth,
 							startTime);
 
@@ -345,10 +346,12 @@ public class Frontier extends FrontierInfo {
 	int totalSavedCnt=0;
 	
 	for(int i=0; i<n; i++) {
-	    SensorSet ss = SensorSet.oneSensorSet(i);
-	    frontiers[ss.intValue()] = new Frontier( t[i], context);
-	    totalSavedCnt ++;
-	    if (Options.verbosity>0) System.out.println("Saved frontier["+ss+"]");
+	    if (t[i].getNCopies()>0)  {
+		SensorSet ss = SensorSet.oneSensorSet(i);
+		frontiers[ss.intValue()] = new Frontier( t[i], context);
+		totalSavedCnt ++;
+		if (Options.verbosity>0) System.out.println("Saved frontier["+ss+"]");
+	    }
 	}
 	System.out.println("Generated and saved "+n+" 1-sensor frontiers");
 
@@ -387,8 +390,7 @@ public class Frontier extends FrontierInfo {
 
 		if (others != null && setSize== maxSetSize-1) {
 		    // save the subset's frontier for a post-mortem
-		    others.addElement(new AnnotatedFrontier(newHull.policies,
-							    newHull.context,
+		    others.addElement(new AnnotatedFrontier(newHull,
 							    maxDepth, startTime));
 		}
 
@@ -418,8 +420,7 @@ public class Frontier extends FrontierInfo {
 	if (maxDepth >= maxSetSizeOrig) {
 	    int ptr = pow-1;
 	    if (frontiers[ptr]==null) throw new  AssertionError("The final result, Frontier["+new SensorSet(ptr)+"] has not been filled, as expected!");
-	    return new AnnotatedFrontier(frontiers[ptr].getPolicies(), 
-					 frontiers[ptr].context,
+	    return new AnnotatedFrontier(frontiers[ptr], 
 					 maxDepth, startTime);
 	} else {
 	    // Since we have not finished building the frontier
@@ -438,7 +439,7 @@ public class Frontier extends FrontierInfo {
 
 	    Frontier newHull = combineFrontiers(v);
 
-	    return new AnnotatedFrontier(newHull.policies, newHull.context, maxDepth, startTime);
+	    return new AnnotatedFrontier(newHull, maxDepth, startTime);
 	}
     }
 

@@ -132,4 +132,8 @@ public class Options {
 	return  new PolicySignature(1+E, 1, 1);
     }
 
+    public static FrontierContext getZeroPiContext() {
+	return new FrontierContext(false, 0.0, getVSMethod(), getEps());
+    }
+
 }
