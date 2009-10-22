@@ -116,6 +116,12 @@ Computed at <%=dateFormat.format(r.presentedFrontier.getEndTime().getTime())%>, 
    }
 %>
 
+
+<hr>
+<div align=center>
+Back to the <a href="/">Main page</a>
+</div>
+
 <hr>
 <p><small><em>
 <%= main.infomsg %>
