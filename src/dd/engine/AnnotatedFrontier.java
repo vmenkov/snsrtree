@@ -13,19 +13,18 @@ public class AnnotatedFrontier extends Frontier {
     AnnotatedFrontier(PolicySignature[] p, FrontierContext _context, int _maxDepth,
 		      Calendar _startTime, Calendar _endTime) {
 	super(p, _context);
-	//eps = context.eps;
 	maxDepth = _maxDepth;
 	startTime = _startTime;
-	endTime = _endTime;
-	
+	endTime = _endTime;	
     }
+
     AnnotatedFrontier(PolicySignature[] p, FrontierContext _context, int _maxDepth,
 		      Calendar _startTime) {
 	this(p, _context, _maxDepth, _startTime, Calendar.getInstance());
     }
 
-    public AnnotatedFrontier(Frontier f, int _maxDepth,  Calendar _startTime) {
-	this(f.policies, f.context, _maxDepth, _startTime, Calendar.getInstance());
+    public AnnotatedFrontier(FrontierInfo f, int _maxDepth,  Calendar _startTime) {
+	this(f.getPolicies(), f.context, _maxDepth, _startTime, Calendar.getInstance());
     }
 
 
@@ -33,7 +32,7 @@ public class AnnotatedFrontier extends Frontier {
     public Calendar getEndTime() { return endTime; }
     public double getMaxDepth() { return maxDepth; }
     public double runtimeMsec() {
-	return endTime.getTimeInMillis() - 	startTime.getTimeInMillis(); 
+	return endTime.getTimeInMillis() - startTime.getTimeInMillis(); 
     }
     
 }

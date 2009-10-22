@@ -40,7 +40,7 @@ public class DemoSessionData {
     public String sensorFileName = null;
     public boolean sensorFromTextarea = false;
     /** Includes pi */
-    public FrontierContext context = new FrontierContext(true, 0, VSMethod.VM1, 1e-6);
+    public FrontierContext context = new FrontierContext(false, 0, VSMethod.VM1, 1e-6);
 
    /** Null means that it's not set, and we won't draw a vertical line */
     public Double budget=null;

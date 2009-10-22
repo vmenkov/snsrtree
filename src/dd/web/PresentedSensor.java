@@ -54,7 +54,7 @@ public class PresentedSensor extends PresentedData {
     }
 
     /** Produces a brief description of the graph, to be displayed above it */
-    String makeGraphTitle() {
+    public String makeGraphTitle() {
 	String text = 
 	    (stage==1) ? "Non-mixed policies for sensor ":
 	    (stage==2) ? "Naive policy mixing for sensor ": "??? ";

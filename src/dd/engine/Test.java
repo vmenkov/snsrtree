@@ -29,6 +29,10 @@ public class Test implements Cloneable {
      */
     int nCopies=1;
     public int getNCopies() { return nCopies; }
+    public void setNCopies(int n) throws IllegalArgumentException { 
+	if (n < 0) throw new IllegalArgumentException("Number of copies must be non-negative");
+	nCopies = n;
+    }
 
     private double cost;
     public double getCost() { return cost; }
@@ -177,6 +181,7 @@ public class Test implements Cloneable {
     /** A short sensor name for output */
     private String name = "no_name";
     public String getName() { return name; }
+    public void setName(String _name) { name = _name; }
 
     private static String mkName(String fileName) {
 	final String prefix = "sensor", suffix = ".txt";

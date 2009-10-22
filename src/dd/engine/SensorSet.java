@@ -20,7 +20,9 @@ public class SensorSet {
     }
 
     SensorSet(SensorSet x) {
-	cnt = Arrays.copyOf(x.cnt, x.cnt.length);
+	//cnt = Arrays.copyOf(x.cnt, x.cnt.length); // n/a in older JDK
+	cnt = new int[x.cnt.length];
+	for(int i=0; i<cnt.length; i++) cnt[i] = x.cnt[i];
     }
 
     /** How many distinct policies can be formed with so many tests of
