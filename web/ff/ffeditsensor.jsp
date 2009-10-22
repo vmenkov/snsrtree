@@ -64,7 +64,7 @@ Sensor name:
 <input type="text" name="sensorname" 
        value="<%=(q==null?"Sample":q.getName())%>"> (optional; it's used for plot titles)
 <br>
-<textarea name="sensordata" cols="20" rows="10"><% 
+<textarea name="sensordata" cols="35" rows="10"><% 
 if (q!=null) { %> <%= q.toString1() %> <%
 } else {%>
 cost: .05
@@ -97,6 +97,11 @@ order of decreasing slope.</p>
 </table> 
 
 <% } %>
+
+<hr>
+<div align=center>
+Back to the <a href="/">Main page</a>
+</div>
 
 </body>
 </html>
