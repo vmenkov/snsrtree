@@ -428,9 +428,6 @@ public class DDGUI extends MyJFrame {
     }
 
 
-    private static final DateFormat timeFmt = 
-	new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-
     /** Saves the frontier description as a text file */
     void saveFrontier() {
 
@@ -458,47 +455,17 @@ public class DDGUI extends MyJFrame {
 
 	    setLabel("Saving frontier to file "+ filepath);
 	    
-	    try {
-
-		
-		AnnotatedFrontier frontier = null;
+	    try {		
 		if (presented instanceof PresentedFrontier) {
-		    frontier = ((PresentedFrontier)presented).frontier;
+		    PrintWriter w = new PrintWriter(file);
+		    ((PresentedFrontier)presented).saveFrontier(w);
+		    w.close();
+		    setLabel("Frontier has been written to file "+ filepath);
 		} else {
 		    // FIXME
-		    throw new AssertionError("Saving surface not supported");
-		}
-
-		PrintWriter w = new PrintWriter(file);
-		w.println("----------- INPUTS: ----------------------");
-		w.println("A set of " +  presented.lastSensorsUsed.length + " sensors.");
-		for(int i=0; i< presented.lastSensorsUsed.length; i++) {
-		    w.println("Sensor["+(i+1)+"], name="+
-			      presented.lastSensorsUsed[i].getName()+":");
-		    w.println(presented.lastSensorsUsed[i]);
-		}
-		w.println("------------ OPTIONS: ---------------------");
-		w.println("eps=" + frontier.getEps());		
-		w.println("maxDepth=" + frontier.getMaxDepth());		
-		w.println("------------ RUNTIME: ---------------------");
-		w.println("Frontier computation started at  " + 
-			  timeFmt.format(frontier.getStartTime().getTime()));
-		w.println("Frontier computation finished at " + 
-			  timeFmt.format(frontier.getEndTime().getTime()));
-		double msec = frontier.runtimeMsec();
-		w.println("Wall-clock runtime = " + 
-			  (msec < 1000 ?
-			   ""+  msec + " msec":
-			   ""+ (0.001 * msec) + " sec"));
-			   
-
-		w.println("-------------- OUTPUT: ---------------------");
-		//w.println( frontier );
-		frontier.print(w);
-
-		w.close();
-		setLabel("Frontier has been written to file "+ filepath);
-
+		    setLabel("Saving surfaces not supported");
+		    throw new AssertionError("Saving surfaces not supported");
+		} 
 	    } catch (Exception e) {
 		setLabel("Failed to write frontier to file " + filepath);
 		System.out.println( e.getMessage());
@@ -508,7 +475,43 @@ public class DDGUI extends MyJFrame {
         }
     }
 
+    /*
+    void doSaveFrontier(    PresentedData presented, PrintWriter w) {
+	AnnotatedFrontier frontier = null;
+	if (presented instanceof PresentedFrontier) {
+	    frontier = ((PresentedFrontier)presented).frontier;
+	} else {
+	    // FIXME
+	    throw new AssertionError("Saving surface not supported");
+	} 
+	w.println("----------- INPUTS: ----------------------");
+	w.println("A set of " +  presented.lastSensorsUsed.length + " sensors.");
+	for(int i=0; i< presented.lastSensorsUsed.length; i++) {
+	    w.println("Sensor["+(i+1)+"], name="+
+		      presented.lastSensorsUsed[i].getName()+":");
+	    w.println(presented.lastSensorsUsed[i]);
+	}
+	w.println("------------ OPTIONS: ---------------------");
+	w.println("eps=" + frontier.getEps());		
+	w.println("maxDepth=" + frontier.getMaxDepth());		
+	w.println("------------ RUNTIME: ---------------------");
+	w.println("Frontier computation started at  " + 
+		  timeFmt.format(frontier.getStartTime().getTime()));
+	w.println("Frontier computation finished at " + 
+		  timeFmt.format(frontier.getEndTime().getTime()));
+	double msec = frontier.runtimeMsec();
+	w.println("Wall-clock runtime = " + 
+		  (msec < 1000 ?
+		   ""+  msec + " msec":
+		   ""+ (0.001 * msec) + " sec"));
+			   
 
+	w.println("-------------- OUTPUT: ---------------------");
+	//w.println( frontier );
+	frontier.print(w);
+    }
+    */	
+	
     /** Saves the frontier as an SVG image file 
      */
     void writeFrontierImage() {

@@ -21,9 +21,26 @@
       <load-on-startup>1</load-on-startup>
     </servlet>
 
+    <servlet>
+      <servlet-name>FrontierDescriptionServlet</servlet-name>
+      <description>
+        This servlet generates SVG, JPEG, or PNG output to be inserted
+	into the page
+      </description>
+      <servlet-class>dd.web.FrontierDescriptionServlet</servlet-class>
+      <!-- Load this servlet at server startup time -->
+      <load-on-startup>1</load-on-startup>
+    </servlet>
+
+
     <servlet-mapping>
       <servlet-name>GraphServlet</servlet-name>
       <url-pattern>/GraphServlet</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+      <servlet-name>FrontierDescriptionServlet</servlet-name>
+      <url-pattern>/FrontierDescriptionServlet</url-pattern>
     </servlet-mapping>
 
     <!-- for  "favicon.ico" -->

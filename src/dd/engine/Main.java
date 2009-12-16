@@ -16,11 +16,18 @@ import java.util.regex.*;
     <li>EB1: as outlined in Endre's messages around 2009-05-14
     </ul>
 
+    <p>Versions:
+    <ul>
+    <li>1.7.8 -  (2009-10-22)
+    <li>1.7.9 -  (2009-12-15) - more features for Web UI
+    </ul>
+
+
  */
 
 public class Main  {
 
-    public static final String version = "1.7.8"; // (2009-10-22)
+    public static final String version = "1.7.9"; // (2009-12-15)
     
     public static void main(String[] argv) throws IOException, DDException {
 

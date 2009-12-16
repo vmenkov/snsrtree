@@ -106,6 +106,15 @@ Computed at <%=dateFormat.format(r.presentedFrontier.getEndTime().getTime())%>, 
 <br>
 <img src="../GraphServlet?caller=ff&stage=3&serial=<%=r.presentedFrontier.serial%>" alt="Loading extremal frontier graph...">
 </div>
+
+Graph no. <%=r.presentedFrontier.serial%>. This frontier contains 
+<%=r.presentedFrontier.frontier.length()%> non-trivial policies. More information:
+<ul>
+<li>To save the PNG image above, click the right mouse button anywhere on it.
+<li>To view the frontier description, <a href="../FrontierDescriptionServlet?caller=ff&serial=<%=r.presentedFrontier.serial%>" target="ff_aux">click here</a>. A new window or tab will open, whose content you can then save to a text file.
+
+</ul>
+
 <%
 }
 %>
@@ -116,7 +125,11 @@ Computed at <%=dateFormat.format(r.presentedFrontier.getEndTime().getTime())%>, 
    }
 %>
 
+<hr>
+<h3>Tools</h3>
+<ul>
 
+</ul>
 <hr>
 <div align=center>
 Back to the <a href="/">Main page</a>
