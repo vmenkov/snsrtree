@@ -245,12 +245,15 @@ Sequential Inspection Strategies.</a> RUTCOR RRR-14-2008.</p>
 <ul>
 <li><a href="http://code.google.com/p/snsrtree/">SNSRTREE</a> on Google Code
 <li><a href="https://sakai.rutgers.edu/portal/site/117506c2-abfb-49c0-0060-cfb1c77bfdff">Project archives on Sakai (members only)</a>
+<li><a href="javadoc/index.html">SNSRTREE API</a>
 </ul>
 
 <h2><a name="papers">More Papers</a></h2>
 <ul>
 <li><a href="http://rutcor.rutgers.edu/pub/rrr/reports2007/26_2007.pdf">RRR #26-2007</a> - Deceptive Detection Methods for Optimal Security with Inadequate Budgets: the Screening Power Index
 </ul>
+
+
 
 
 </body>
