@@ -217,6 +217,11 @@ public class FFSessionData {
 
 
     void setMulti(HttpServletRequest request) throws WebException {
+	if (nSensors()==0) {
+	    throw new WebException("No sensors has been supplied. Perhaps your session has expired; in this case, you must restart from the <a href=\"index.html\">start page</a>");
+	}
+
+
 	for(int i=0; i<nSensors(); i++) {
 	    String s = request.getParameter("multi" + i);
 	    if (s != null) {
@@ -230,10 +235,11 @@ public class FFSessionData {
 	}
 	int sum =0;
 	for(int i=0; i<nSensors(); i++) {
+	    int n = sensors[i].getNCopies();
 	    sum += sensors[i].getNCopies();
 	}
 	if (sum <= 0) {
-	     throw new WebException("Please go back and make sure to enter at least one positive number for a sensor's number of copies. (Or maybe your session has expired?)");
+	    throw new WebException("Please go back and make sure to enter at least one positive number for a sensor's number of copies. (Or maybe your session has expired? In that case, please restart from the <a href=\"index.html\">start page</a>. (Currently, stored "+nSensors()+" sensors)");
 	}
 	
     }

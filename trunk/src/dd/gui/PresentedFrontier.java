@@ -1,5 +1,6 @@
 package dd.gui;
 
+import java.io.*;
 import java.util.*;
 import java.text.*;
 
@@ -135,5 +136,43 @@ public class PresentedFrontier extends PresentedData {
     */
 
     public Calendar getEndTime() { return frontier.getEndTime(); }
+
+    private static final DateFormat timeFmt = 
+	new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+
+
+    public void saveFrontier( PrintWriter w) {
+
+	w.println("----------- INPUTS: ----------------------");
+	w.println("A set of " +  lastSensorsUsed.length + " sensors.");
+	for(int i=0; i< lastSensorsUsed.length; i++) {
+	    w.println("Sensor["+(i+1)+"], name="+
+		      lastSensorsUsed[i].getName()+", multiplicity="+lastSensorsUsed[i].getNCopies()+":");
+	    w.println(lastSensorsUsed[i]);
+	}
+	w.flush();
+	w.println("------------ OPTIONS: ---------------------");
+	w.println("eps=" + frontier.getEps());		
+	w.println("maxDepth=" + frontier.getMaxDepth());		
+	w.println("------------ RUNTIME: ---------------------");
+	w.println("Frontier computation started at  " + 
+		  timeFmt.format(frontier.getStartTime().getTime()));
+	w.println("Frontier computation finished at " + 
+		  timeFmt.format(frontier.getEndTime().getTime()));
+	double msec = frontier.runtimeMsec();
+	w.println("Wall-clock runtime = " + 
+		  (msec < 1000 ?
+		   ""+  msec + " msec":
+		   ""+ (0.001 * msec) + " sec"));
+			   
+
+	w.println("-------------- OUTPUT: ---------------------");
+	w.flush();
+	//w.println( frontier );
+	frontier.print(w);
+	w.println();
+    }
+	
+	
 
 }

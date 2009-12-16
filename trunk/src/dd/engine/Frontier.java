@@ -718,7 +718,9 @@ public class Frontier extends FrontierInfo {
 		    Policy.RELEASE.toTreeString() ); 
 	for(int i=0; i<policies.length; i++) {
 	    out.print("[POLICY "+i+"] "+policies[i].toShortString() + " ");
-	    out.println(    policies[i].toTreeString());
+	    policies[i].printTree(out, 120, true);
+	    out.println();
+	    out.flush();
 	}	    
 	out.println("[INSPECT] " + context.INSPECT.toShortString() + " " + 
 		 context.INSPECT.toTreeString() ); 

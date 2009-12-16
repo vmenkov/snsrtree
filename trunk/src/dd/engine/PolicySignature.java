@@ -144,8 +144,14 @@ public class PolicySignature {
 	}
     }
 
-    public void printTree(PrintWriter w) {
-	w.print( toTreeString());
+    public int printTree(PrintWriter w, int L, boolean fold) {
+	String s=toTreeString(L, fold);
+	w.print(s);  
+	return s.length();
+    }
+
+    public int printTree(PrintWriter w) {
+	return printTree(w, 0, Options.fold); 
     }
 
     public boolean isWithinEps( PolicySignature x, double eps) {

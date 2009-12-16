@@ -118,25 +118,48 @@ public class Policy extends PolicySignature {
 	}
     }
 
-    public void printTree(PrintWriter w) {
+
+    public int printTreeString(PrintWriter w, int L, boolean fold) {
+	int len=0;
 	if (q==null) {
-	    super.printTree(w);
+	    // 0 and 1 are the only 2 legal values in trivial policies
+	    len += super.printTree(w, L,fold);
 	} else {
-	    w.print( "(" + q.getName() + ":");
+	    String s= "(" + q.getName() + ":";
+	    w.print(s); 
+	    len += s.length();
+
 	    for(int i=0; i<outputs.length; i++) {
-		w.print(" ");
-		if (Options.fold) {
+		if (L>0 && len>=L) {
+		    s=".....";
+		    w.print(s);
+		    len +=  s.length();
+		    break;
+		}
+		int remains = (L==0) ? 0 : L - len;
+
+		w.print(" "); len++;
+		if (fold) {
 		    // compact format applies to identical subtrees
 		    int cnt = eqCnt(i);
 		    if (cnt>1) {
-			w.print("" + cnt+"*");
+			s= "" + cnt+"*";
+			w.print(s); 
+			len += s.length();
+
 			i += cnt-1;
 		    }
-		} 
-		outputs[i].printTree(w);
+		}
+		len += outputs[i].printTree(w, remains, fold);
 	    }
-	    w.print(")");
+	    w.print(")"); len++;	    
 	}
+	return len;
+    }
+
+
+    public int printTree(PrintWriter w) {
+	return printTree(w, 0, true);
     }
 
 
