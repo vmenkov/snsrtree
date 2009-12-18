@@ -59,7 +59,6 @@ abstract public class FrontierInfo {
 	q. (So, used[i]=0 means: use the trivial zero-cost R policy on the
 	i-th channel)
 
-	@param onBad
     */
     PolicySignature combiCost(Test q, int used[]) {
 	double c= q.getCost(),  //cost of running test q

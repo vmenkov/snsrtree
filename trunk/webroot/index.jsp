@@ -227,13 +227,18 @@ who would have to develop a corresponding physical device.</p>
 management of the interrelation between fundamental research, which continues
 to bring us more powerful tools, and the realities of having to defend the
 nation using a limited budget. </p>
-
-
-<p>Goldberg, N., Word, J., Boros, E. &amp; Kantor, P. (2008). <a
-href="http://rutcor.rutgers.edu/pub/rrr/reports2008/14_2008.pdf">Optimal
-Sequential Inspection Strategies.</a> RUTCOR RRR-14-2008.</p>
-
 </div>
+
+<h2><a name="papers">Papers</a></h2>
+<ul>
+<li>Goldberg, N., Word, J., Boros, E. &amp; Kantor, P. (2008). <a
+href="http://rutcor.rutgers.edu/pub/rrr/reports2008/14_2008.pdf">Optimal
+Sequential Inspection Strategies.</a> RUTCOR RRR-14-2008.
+
+<li><a href="http://rutcor.rutgers.edu/pub/rrr/reports2007/26_2007.pdf">RRR #26-2007</a> - Deceptive Detection Methods for Optimal Security with Inadequate Budgets: the Screening Power Index
+</ul>
+
+
 
 <h2><a name="demos">DNDO Demos</a></h2>
 <ol>
@@ -243,17 +248,11 @@ Sequential Inspection Strategies.</a> RUTCOR RRR-14-2008.</p>
 
 <h2><a name="res">Web Resources</a></h2>
 <ul>
+<li><a href="readme.html">README</a> - downloading and installing the SNSRTREE Frontier Finder application on your desktop
 <li><a href="http://code.google.com/p/snsrtree/">SNSRTREE</a> on Google Code
 <li><a href="https://sakai.rutgers.edu/portal/site/117506c2-abfb-49c0-0060-cfb1c77bfdff">Project archives on Sakai (members only)</a>
-<li><a href="javadoc/index.html">SNSRTREE API</a>
+<li><a href="javadoc/index.html">SNSRTREE API</a> - for use in your own software design
 </ul>
-
-<h2><a name="papers">More Papers</a></h2>
-<ul>
-<li><a href="http://rutcor.rutgers.edu/pub/rrr/reports2007/26_2007.pdf">RRR #26-2007</a> - Deceptive Detection Methods for Optimal Security with Inadequate Budgets: the Screening Power Index
-</ul>
-
-
 
 
 </body>
