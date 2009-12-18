@@ -1,0 +1,55 @@
+<html>
+<body>This page is the root of the javadoc hierarchy for the Deceptive Detection Frontier Finder tool. It includes command-line and graphics interfaces.
+
+<h2>What is the Frontier Finder?</h2>
+<p>The Frontier Finder's main function is as follows: given a list of
+sensors, compute an "extremal frontier" for the set of all policies
+based on these sensors. The frontier is a set of policies that defines
+a "convex hull" of the set of all feasible policies in the
+(policy_cost, detection_rate) plane. That is, for any conceivable
+policy p there is a policy p' whose cost is the same as that of p,
+whose detection rate is the same or better than p, and which either is
+a one of the frontier policies, or is a linear combination ("mix") of
+two frontier policies.
+
+<p>Each sensor is described by its cost and its ROC curve. A basic
+assumption of the Frontier Finder (something that only rarely holds in
+real life) is that all sensors are completely independent: that is, if
+one looks at all bad policies as a group, there is no correlation
+between their "grading" by one test and their "grading" by any other
+test. The same goes for all good policies.
+
+
+<h2>Getting started with Frontier Finder API</h2>
+
+<p>This document will help you getting started with using Deceptive
+Detection Frontier Finder API in your application.</p>
+
+<h3>Dataflow overview</h3>
+
+<p>One would usually use the Frontier Finder API in the following way:
+
+<ol>
+<li>Create a list of {@link dd.engine.Test} objects representing
+sensors that one wish to combine into policies.
+
+<li>Specify any required frontier generation options by creating a 
+{@link dd.engine.FrontierContext} object.
+
+<li>Run the Frontier Finder, which will generate a {@link
+dd.engine.Frontier} object (or, in the case of a non-zero pi, an array
+of Frontier objects) describing the extremal frontier. The method to
+use is {@link dd.engine.Frontier#buildFrontier(Test[],
+FrontierContext, int, Vector)} for pi=0, or {@link
+dd.engine.Frontier#buildFrontiersMultiPi(double[], Test[], FrontierContext, int maxDepth)} for
+non-zero pi.
+
+<li>Extract desired information (e.g., policy trees) from the a {@link
+dd.engine.Frontier} object(s) returned. 
+
+</ol>
+
+</p>
+
+</body>
+</html>

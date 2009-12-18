@@ -5,26 +5,71 @@ import java.io.*;
 import java.util.Vector;
 
 
-/** A Frontier describes a convex hull over a set of Policies. It always
- * includes the two trivial policies, (0,0) and (1,1+E), which we don't
- * explicitly store in the representation.
+/** A Frontier describes a convex hull over a set of Policies.  It is
+    represented internally as an array of {@link dd.engine.Policy
+    Policies} (or merely {@link dd.engine.PolicySignature
+    PolicySignatures}), arranged in the order of increasing cost, and
+    forming the frontier of the convex hull. The points (0,0) and
+    (1,1+<em>E</em>), representing the "release all" and "sinspect
+    all" policies present in any extremal frontier, are omitted, to
+    save space. Thus, a trivial (no devices) frontier can be
+    represented by a 0-length vector.
+
+    <p>The range of potential policy costs is from 0 (the "release
+    all" policy) through 1+<em>E</em>. This is because the cost of
+    inspecting and object <em>per se</em> is our unit of cost, and
+    thus is always equal to one; the <em>additional</em> "disruption
+    of commerce" cost involved in inspecting a "good" object (i.e, the
+    extra cost of false positives) is <em>E</em>.  The value
+    of<em>E</em> is controlled and accessed by {@link
+    Options#setE(double)} and {@link Options#getE()}.
+	
+    <p>The array of policies may store merely {@link
+    dd.engine.PolicySignature} objects, or actual {@link
+    dd.engine.Policy Policy} objects, depending on the flag {@link
+    Options#signaturesOnly}
+
+    <p>The two methods that an API user would most likely need here
+     are {@link #buildFrontier(Test[], FrontierContext, int, Vector)}
+     for pi=0 (i.e., the expected percentage of "bad" objects in the
+     universe is very small), or {@link #buildFrontiersMultiPi(double[],
+     Test[], FrontierContext, int maxDepth)} for
+     non-zero pi (i.e., a non-neglibly-small percentage of "bad" objects).
+
  */
 
 public class Frontier extends FrontierInfo {
 
-    /** A Frontier is represented as simply an array of Policies,
-	arranged in the order of increasing cost, forming the frontier
-	of the convex hull. The points (0,0) and (1,1+E), present in any
-	frontier, are omitted, to save space. Thus, a trivial (no
-	devices) frontier can be represented by a 0-length vector. The
-	array may store merely PolicySignature objects, or actual
-	{@link dd.engine.Policy Policies}, depending on the parameters
-	to buildFrontier */
+    /** A Frontier is represented as simply an array of {@link
+	dd.engine.Policy Policies}, arranged in the order of
+	increasing cost, and forming the frontier of the convex
+	hull. The points (0,0) and (1,1+<em>E</em>), representing the
+	"release all" and "sinspect all" policies present in any
+	extremal frontier, are omitted, to save space. Thus, a trivial
+	(no devices) frontier can be represented by a 0-length vector.
+
+	<p>The array of policies may store merely {@link
+	dd.engine.PolicySignature} objects, or actual {@link
+	dd.engine.Policy Policy} objects, depending on the flag {@link
+	Options.signaturesOnly}
+    */
     PolicySignature policies[];
     
     Frontier getFrontier() { return this; }
 
+    /** Returns the array of {@link dd.engine.Policy Policies} (or
+    merely {@link dd.engine.PolicySignature PolicySignatures}),
+    describing the frontier. This is a "live" array - i.e., a
+    reference to the object stored in the Frontier object; therefore,
+    you should not modify it.
+    */
     public PolicySignature[] getPolicies() { return policies; }
+
+
+    /** Returns a copy of the array of {@link dd.engine.Policy Policies} (or
+	merely {@link dd.engine.PolicySignature PolicySignatures}),
+	describing the frontier. 
+    */
     public PolicySignature[] getPoliciesCopy() { 
 	PolicySignature[] q = new PolicySignature[policies.length];
 	for(int i=0; i<policies.length; i++) q[i] = policies[i];
@@ -32,26 +77,56 @@ public class Frontier extends FrontierInfo {
     }
     /** Returns the i-th policy of this frontier. The "non-trivial"
       policies are numbered with base 0, meaning that the argument
-      i=-1 referes to the (implied) RELEASE policy, and
+      i=-1 refers to the (implied) RELEASE policy, and
       i=policies.length refers to the (implied) INSPECT policy.     
+      
+      @param i The policy position, ranging from -1 to policies.length
      */
     public PolicySignature getPolicy(int i) { 
 	return (i==-1)? Policy.RELEASE :  
 	    i==policies.length? context.INSPECT: policies[i]; 
     }
 
+    /** Returns the detection rate of the i-th policy
+      
+      @param i The policy position, ranging from -1 to policies.length
+      @return Detection rate, in the range 0 through 1.0 
+    */
     public double getDetectionRate(int i) {
 	return (i==-1) ? 0: (i==length())? 1 : policies[i].getDetectionRate();
     }
 
+    /** Returns the total average policy cost of the i-th policy
+      on a "good" object.
+      
+      @param i The policy position, ranging from -1 to policies.length
+      @return Total average policy cost on a "good" object, in the range
+      0 through 1.0 + <em>E</em>
+     */
     public double getPolicyCost0(int i) {
 	return getPolicy(i).getPolicyCost();
     }
 
+    /** Returns the total average policy cost of the i-th policy
+      on a "bad" object.
+      
+      @param i The policy position, ranging from -1 to policies.length
+      @return Total average policy cost on a "bad" object, in the
+      range 0 through 1.0 
+     */
     public double getPolicyCostOnBad(int i) {
 	return getPolicy(i).getPolicyCostOnBad();
     }
 
+    /** Returns the total average policy cost of the i-th policy
+      on a set of objects in which the fraction of "bad" objects is 
+      equal to this frontier's {@link #context}.pi.
+      
+      @param i The policy position, ranging from -1 to policies.length
+      @return Total average policy cost on a large set objects in
+      which pi*|set| are "bad" and (1-pi)*|set| are "good". The value
+      is in the range 0 through 1.0 + (1-pi)*E
+     */
     public double getPolicyCostPi(int i) {
 	 return getPolicy(i).getPolicyCost(context.pi);
     }
@@ -259,44 +334,65 @@ public class Frontier extends FrontierInfo {
     //private int minusJ(int ptr) { return  = ptr & (~ (1<<j)); }
 
      /** Runs buildFrontier with the eps value from the options file/cmd line
-      * option (or the default value)
+      * option (or the default value), as per {@link Options}
+
+     @see #buildFrontier(Test[], FrontierContext, int maxDepth, Vector others)
+
       */
     public static AnnotatedFrontier buildFrontier(Test t[]) throws DDException {
 	return  buildFrontier( t, null);
     }
 
+     /** Runs buildFrontier with the eps value from the options file/cmd line
+      * option (or the default value), as per {@link Options}
+
+     @see #buildFrontier(Test[], FrontierContext, int maxDepth, Vector others)
+
+      */
     public static AnnotatedFrontier buildFrontier(Test t[], Vector<AnnotatedFrontier> others) throws DDException {
 	int maxSetSizeOrig = SensorSet.maxSetSize(t);
 	return buildFrontier(t, Options.getZeroPiContext(), 
 			     Options.getMaxDepth(maxSetSizeOrig), others);
     }
 
-   /** This is the main method here: it constructs the efficient frontier of
-	all policies that can be created using Tests from t[] 
+   /** The main method for constructing the extremal frontier of a
+	policy set. It constructs the extremal frontier for the set of
+	all policies that can be created using {@link Test sensors}
+	from t[]
 
 	@param t An array of tests. The frontier will be constructed
 	from policies based on tests from this array. In each array
-	element, t[i].nCopies, if set to a value N greater than 1,
-	specifies that this array element represents not a single
-	sensor, but N sensors with identical detection curves; thus, a
-	policy can include up to N sensors identical to t[i]. This is
-	simply an optimization over multiple sensors with identical
-	detection curves.
+	element t[i], the field t[i].nCopies can be set to a value N
+	greater than 1, which would specify that this array element
+	represents not a single sensor, but N sensors with identical
+	detection curves; thus, a policy can include up to N sensors
+	identical to t[i]. This is simply an optimization (compared to
+	including N identical {@link Test} objects into the array) for
+	the situation when you have multiple sensors with identical
+	costs and ROC curves.
 
-	@param context Contains the VS method and eps. That's used to
-	"merge" frontier points located within eps from each in both
-	Cost and DetectionRate direction. It is desirable to always
-	use a non-zero - even if very small - eps, in order to prevent
-	near-duplicate points appearing on the hull due to
-	floating-point computational errors.
+	@param context Contains the {@link VSMethod vertex-skipping
+	method} and the eps value for it. These parametes are used to
+	"skip" some vertexes on the frontier when doing so results
+	only in a negligible (smaller than <em>eps</em>, by some
+	measure) change to the frontier. E.g., if context.vsMethod =
+	{@link VSMethod#VM1}, the algorithm will be allowed to "merge"
+	frontier points located close to each other within eps from
+	each in both Cost and DetectionRate direction. It is desirable
+	to always use a non-zero - even if very small - eps, in order
+	to prevent near-duplicate points appearing on the
+	hull due to floating-point computational errors.
 
 	@param maxDepth Maximum size of decision trees included into
-	the frontier. If this value is equal or greater than t.length
-	(the number of tests), then it has no effect, as no efficient
-	tree constructed from t[] will be higher than t.length anyway.
+	the frontier. If this value is equal or greater than the total
+	number of sensors (i.e., maxDepth &ge; M = sum<sub>
+	i=0,...,t.length-1 </sub>t.nCopies), then it has no effect, as
+	no efficient tree constructed from t[] will be higher than
+	M anyway.
 
-	@param others If not null, we'll add some intermediate
-	frontiers to this vector, for a post-mortem
+	@param others This is used as an "output parameter". If not
+	null, we'll add some intermediate frontiers to this vector,
+	for a post-mortem.
     */
     public static AnnotatedFrontier 
 	buildFrontier(Test t[], FrontierContext context, int maxDepth, 
@@ -443,13 +539,43 @@ public class Frontier extends FrontierInfo {
 	}
     }
 
-    /** Builds a set of frontiers for a variety of pi values, from 0
-	to 1, with some intermediate values.
+    /** Builds an <em>extremal surface</em>: set of extremal frontiers
+	for a variety of pi values, from 0 to 1, with some
+	intermediate values. This is the method you need to use if you
+	want to obtain a frontier for some value of pi not equal to
+	0. Because of the way frontiers are computed, you can't
+	request to compute a single frontier (just for the pi you
+	want); you need to provide an array of pi values, and a frontier will
+	be computed for each one.
+
+	<p>All parameters of this method, other than piList, have the
+	same general semantics as in {@link #buildFrontier(Test[],
+	FrontierContext, int maxDepth, Vector others)} 
+
+
+	@param piList The list of pi values for which frontiers will
+	be computed. The values must appear in increasing order, the
+	first one being 0.0 and the last one being 1.0. Frontiers will
+	be computed for each value of pi. The process is approximate
+	(basically, the "extreme surface" is approximated by a mesh),
+	and the finer is the grid (i.e., the set of pi values in this
+	array), the more precise will be the result. As a first
+	approximation, you can try the array of values {0, 0.1, 0.2,
+	... 0.9, 1}.
+
+	@param t The list of tests (with their multiplicities, in
+	t[j].nCopies) from which policies can be constructed.
+
+	@param context0 Describe the vertex-skipping method and epsilon to use
+
+	@param maxDepth max tree height
+
+	
      */
     public static AnnotatedFrontier[] 
-	buildFrontiersMultiPi(double piList[], Test t[], double eps, 
-			      VSMethod vs, int maxDepth, 
-			      Vector<AnnotatedFrontier> others) throws DDException {
+	buildFrontiersMultiPi(double piList[], Test t[], 
+			      FrontierContext context0, int maxDepth
+	/*      Vector<AnnotatedFrontier> others */) throws DDException {
 
 	final boolean fastPurge = true; //delete old frontiers fast to save mem
 
@@ -474,7 +600,7 @@ public class Frontier extends FrontierInfo {
 
 	System.out.println("Build frontiers multiPi: "+n + " sensors, maxDepth=" + 
 			   (maxDepth<0? "ALL" : ""+maxDepth)+
-			   ", VS method="+vs+" with eps=" + eps);
+			   ", VS method="+context0.vs+" with eps=" + context0.eps);
 	Calendar startTime = Calendar.getInstance();
 
 	if (n >= Integer.SIZE-1) {
@@ -490,13 +616,13 @@ public class Frontier extends FrontierInfo {
 
 	FrontierContext contexts[] = new  FrontierContext[ piList.length];
 	for(int j=0; j<piList.length; j++) {
-	    contexts[j] = new FrontierContext(true, piList[j], vs, eps);
+	    contexts[j] = context0.changePiMulti(piList[j]);
 	    // start filling frontiers[]...
 	    // Empty set:
 	    xf[j][0] = new Frontier(contexts[j]); // an empty (R-I) frontier
 	}
 
-	if (maxDepth <= 0) return annotate(xf, 0, eps, maxDepth, startTime);
+	if (maxDepth <= 0) return annotate(xf, 0, maxDepth, startTime);
 
 	System.out.println("Max possible set size= "+maxSetSizeOrig+", max allowed set size = " +maxSetSize); 
 
@@ -550,8 +676,7 @@ public class Frontier extends FrontierInfo {
 			    double adjPi = basePi*b /( basePi*b + g*(1-basePi));
 			    if (adjPi < 0 || adjPi> 1) throw new AssertionError("");
 
-			    FrontierContext adjContext = 
-				new FrontierContext(true, adjPi, vs, eps);
+			    FrontierContext adjContext = context0.changePiMulti(adjPi);
 
 			    // what's the closest value in piList?
 			    int jpAdj = 0;
@@ -641,12 +766,12 @@ public class Frontier extends FrontierInfo {
 		xf[jp][destPtr] = newHull;
 	    }
 	}
-	return annotate(xf, destPtr, eps, maxDepth, startTime);
+	return annotate(xf, destPtr, maxDepth, startTime);
     }
     
 
     /** For multi-pi */
-    static private AnnotatedFrontier[] annotate(FrontierInfo[][] xf, int ptr, double eps, int maxDepth, Calendar startTime) {
+    static private AnnotatedFrontier[] annotate(FrontierInfo[][] xf, int ptr, int maxDepth, Calendar startTime) {
 	AnnotatedFrontier af[] = new AnnotatedFrontier[xf.length];
 	Calendar endTime = Calendar.getInstance();
 	for(int i=0; i<af.length; i++) {

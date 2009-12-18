@@ -1,0 +1,309 @@
+<html>
+<head>
+<title>Deceptive Detection Policy Frontier Finder: User's Guide</title>
+</head>
+<body>
+<h1>
+Deceptive Detection Policy Frontier Finder: User's Guide
+</h1>
+
+<h2><a name="pre">Prerequisites</a></h2>
+
+<h3>Necessary</h3>
+
+<ul>
+<li>
+Java 1.6 on a Linux/UNIX or (hopefully) MS Windows machine.
+<li>
+Batik SVG Toolkit (see below)
+</ul>
+
+<h3>Desirable</h3>
+
+<ul>
+<li>
+Apache Ant: to facilitate compilation/deployment
+<li>
+Apache Tomcat: only needed to run the web front end
+<li>
+Apache Commons libraries: commons-fileupload-1.2.1.jar and
+commons-io-1.4.jar : to compile for the web front end
+</ul>
+
+<h3>Batik SVG Toolkit</h3>
+<p>
+The Deceptive Detection Policy Frontier Finder uses the Batik SVG Toolkit to
+produce image files, or to convert image files from SVG format to JPG or PNG
+formats. It is a free Apache product.
+
+<p>
+To make sending the distribution file by email, as well as later updating,
+easier, I don't include the Batik kit into it. Instead, please download the
+file batik-1.7.zip from <a href="http://xmlgraphics.apache.org/batik/download.cgi">the download page</a>.
+
+<p>
+You then need to extract the files from that archive to some directory on
+your computer; on a Linux host, it can be done with
+<pre>
+     cd some_directory
+     unzip batik-1.7.zip
+</pre>
+This will have the subdirectoy "some_directory/batik-1.7" under the directory
+where you have started.
+
+<p>
+There are various ZIP tools installed on most MS Windows machine as well.
+
+<h2><a name="zip">Installing from a ZIP file</a></h2>
+
+<p>
+If you have access to Sakai, and don't plan to do development work, it
+may be easiest from you to install the application from the ZIP file
+distributed at Sakai.
+
+<p>
+<ol>
+<li>
+Choose what directory you plan to install the Frontier Finder and
+the necessary libraries in. For the rest of the discussion, we'll
+assume that the directory (the "main directory") is called "dndo":
+<pre>
+       mkdir dndo
+</pre>
+
+<li>Install Batik. As per instructions in seciton 1, download the Batik
+zip file and unpack it, so that batik-1.7 will be a subdirectory of
+your main directory:
+<pre>
+     cd dndo
+     unzip batik-1.7.zip
+</pre>
+
+<li> Download the distribution file for the current version of the
+Frontier Finder (e.g. snsrtree-v1_8_0.zip) from Sakai, and extract it
+into the main directory:
+<pre>
+      cd dndo
+      unzip snsrtree-v1_8_0.zip
+</pre>
+This way, your main directory will have a subdirectory for Batik and a subdirectory for Snsrtree, e.g.
+<pre>
+     dndo/batik-1.7
+</pre>
+and
+<pre>
+     dndo/snsrtree
+</pre>
+It does not have to be done in this way, but if you install DD and Batik in 
+under different directories, you'd have to modify the classpath settings when
+runing our DD application.
+
+<li>You don't need to recompile the Java program, since the code has
+been already compiled, and a Jar file is included in the
+distribution. Should you modify code in some way and need to
+recompile, you can do it by runing 
+<pre>
+	   ant compile
+</pre>
+in the directory "snsrtree"      	  
+</ol>
+</p>
+
+<h2><a name="google">Installing from Google Code</a></h2>
+
+<p>
+An alternative process for installing the application is by
+downloading its source code from the repository at
+<a href="http://code.google.com/p/snsrtree/">http://code.google.com/p/snsrtree/</a>, and then recompiling it yourself.
+
+<p>
+Assuming that your "main" directory is called "dndo", 
+you can check out the code from the repository as follows:
+<pre>
+    cd dndo
+    svn checkout https://snsrtree.googlecode.com/svn/trunk/ snsrtree-read-only
+</pre>
+
+<p>
+You will also need to download the Batik toolkit (see above), and unpack it into
+a subdirectory of your main directory:
+<pre>
+    cd dndo
+    unzip batik-1.7.zip
+</pre>
+
+<p>
+Finally, you will also need to download two jar files from Apache web
+site (commons-fileupload-1.2.1.jar from
+<a href="http://commons.apache.org/fileupload/">
+http://commons.apache.org/fileupload/ </a>, and commons-io-1.4.jar from
+<a href="http://commons.apache.org/downloads/download_io.cgi">
+http://commons.apache.org/downloads/download_io.cgi </a>) and
+to install these jar files into snsrtree/lib :
+<pre>
+    cd dndo
+    cd snsrtree
+    mkdir lib
+</pre>
+(The Apache site may distribute Jar files not individually, but
+packaged with other files into ZIP of TAR.GZ files; you'd need to
+unpack those, and place the extracted jar files into snsrtree/lib).
+
+<p>
+Once everything is installed, you can run
+<pre>
+    ant compile
+</pre>
+in the snsrtree directory.
+
+<h2><a name="gui">Running the GUI program</a></h2>
+
+<p>
+In UNIX, run this script in the directory "snsrtree":
+<pre>
+./run.sh
+</pre>
+In MS Windows, run "run.bat".
+
+<p>
+If the program fails during file-writing stage because it cannot find the
+Batik classes, it means that relative location of the batik-1.7 directory
+and the dd directory is not what it was expected to be. Move one of the
+directories, or modify run.sh in accordance with their actual location.
+
+<h3>Reading the sensor list</h3>
+
+Use the "File | Read Config File" menu item to read a config file in the same
+format as used by your old application. This config file is simply the list of
+sensor files, one file name per line. Each sensor file described a single
+sensor, in the format specified by Paul and used by your old application
+
+<h3>Computing</h3>
+
+Use the "Run | Compute frontier" menu item to compute the efficient frontier
+for the currently loaded set of sensors. It will take some time; you can watch
+the standard output (command line window) for the progress. Once the frontier
+has been computed, it will be plotted on the screen in the (Cost,
+DetectionRate) coordinates. The cost for each policy includes the stochastic
+cost of all tests and final inspections involved.
+
+<h3> Saving as text </h3>
+
+You can save results as text using the "File | Save frontier" menu
+
+<h3> Saving as an image file </h3>
+
+<p>
+You can save results as an image file (SVG, JPG, or PNG) using the "File |
+Write frontier" menu. The output file format will be determined by the
+extension of the file name you have specified (.svg, .jpg, or .png).
+
+<p>
+What format to use? SVG is the recommended format, as it's a vector
+format (i.e., perfectly scalable and lossless). An SVG image can
+always be converted to JPG or PNG later on, with Batik utilities (and
+probably to PostScript too); it can be viewed in good web browsers,
+such as Firefox. Nonetheless, you can also save a graph directly as an
+image in PNG or JPG format, if this makes your life easier.
+
+<h3> Saving approximated sensors </h3>
+
+<p>
+Since ver 1.6.2, <em> eps</em> is applied to original sensors, replacing them
+with "approximated" sensors, by merging some "thin" channels
+("thinner" than eps in both C and D dimensions) into wider ones.
+
+<p>
+The description of the approximated sensors can be saved using the
+"File | Save sensors" menu item. You will then will need to pick an
+existing or new directory into which the data files will be saved. For
+each sensor, two files will be saves:
+<ul>
+<li> a sensor description file, describing the approximated sensor's ROC
+   curve, in the same format as used in the input files for the
+   original sensors.
+
+<li> a "map" file, showing the what channel(s) of the original sensor each
+   channel of the approximated channel corresponds to. For a 5-channel
+   approximated sensor corresponding to an original 15-channel sensor,
+   the map file may look as follows:
+<pre>
+   0 3
+   1 5 
+   2 6
+   3 10
+   4 14
+</pre>
+   This means that channel 0 of the approximated sensor is obtained by
+   merging channels 0-3 of the original sensor, channel 1 is obtained by
+   merging channels 4-5, channel 2 is the original channel 6, and so on.
+</ul>
+</p>
+
+<h3> Viewing policies </h3>
+
+<p>
+Once a frontier has been computed and displayed on the screen, you can click a
+mouse button on any of the red circles representing policies. A menu will pop
+up, displaying basic info about the policy, and giving you an entry for
+plotting the decision tree of the policy. If you choose that entry, the
+decision tree for the chosen policy will be plotted in a separate new window.
+
+<h2><a name="batch">Running the command-line program</a></h2>
+
+You can also run the frontier computation without the GUI, purely as a batch
+job. E.g.
+<pre>
+./batch-run.sh config.txt
+</pre>
+or
+<pre>
+time java -classpath classes dd.engine.Main config.txt
+</pre>
+(The "time" command preceding the "java" program name, and also included in
+bath0run.sh, provides for some runtime statistics from the UNIX shell - the
+user and system time, as well as wall-clock time, for the run)
+
+<h2><a name="svg">Converting SVG files to JPG or PNG</a></h2>
+<p>
+If you are producing image files for importing into a document preparation
+system with PostScript or PDF output, such as LaTeX, SVG format is probably
+more suitable than JPG or PNG, because SVG is a vector format (and not a
+raster, i.e. bitmap, format as the other two), and SVG images can be scaled
+perfectly, without aliasing problems or quality loss. SVG files can also be
+viewed directly in many web browsers, such as modern versions of Firefox, or
+uploaded to image archive sites such as Wikipedia / Wikimedia Commons.
+
+<p>
+Nonetheless, you may need to convert an SVG file to JPG or PNG. The Batik SVG
+toolkit, which you have installed already, includes a tool for this. It can be
+used as follows.
+
+<p>
+To convert test.svg to test.png:
+<pre>
+      java -jar ../batik-1.7/batik-rasterizer.jar test.svg 
+</pre>
+To convert test.svg to test.jpg, using default quality:
+<pre>
+      java -jar ../batik-1.7/batik-rasterizer.jar -m image/jpeg test.svg 
+</pre>
+Same, with 80% quality:
+<pre>
+      java -jar ../batik-1.7/batik-rasterizer.jar -m image/jpeg -q 0.8 test.svg 
+</pre>
+
+<p>
+More details on conversion (including dealing with multiple files at once) can
+be found here:
+<a href="http://xmlgraphics.apache.org/batik/tools/rasterizer.html">
+http://xmlgraphics.apache.org/batik/tools/rasterizer.html</a>
+
+<p>
+There is also script "svg2jpg.sh" in the directory dd that you can use:
+<pre>
+./svg2jpg.sh test.svg test.jpg
+</pre>
+
+</body>
+</html>

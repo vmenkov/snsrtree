@@ -379,15 +379,14 @@ public class DDGUI extends MyJFrame {
 			frontier.print(new PrintWriter(System.out));
 		    }
 		    presented = new PresentedFrontier(actualSensors, frontier, otherFrontiers);
-		} else { //surface!
+		} else { // Build a surface!
 		    double[] piList = Options.getPiList();
 		    AnnotatedFrontier[] 
 		    surface =
 			Frontier.buildFrontiersMultiPi
 			(piList, actualSensors,
-			 Options.getEps(), Options.getVSMethod(),
-			 Options.getMaxDepth(SensorSet.maxSetSize(actualSensors)), 
-			 null);
+			 Options.getZeroPiContext(),
+			 Options.getMaxDepth(SensorSet.maxSetSize(actualSensors)) );
 		    //(showSubsetFrontiers? otherFrontiers:null) );
 
 		    // FIXME: so far showing just 1. And the rest?

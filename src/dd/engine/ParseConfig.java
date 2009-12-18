@@ -12,7 +12,9 @@ import java.util.*;
  * 
  * @author Qin Shi
  * @author Vladimir Menkov
- * @date 1999-2004 
+ *
+ <P>
+ * 1999-2004 
  */
 
 public final class ParseConfig extends Hashtable<String,Object> {

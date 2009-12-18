@@ -64,6 +64,12 @@
   <available file="${tomcat.home.rutgers}"/>
   </condition>
 
+  <!-- the location of files that will appear at the "root" of our
+  website (regardless of whether it's localhost or
+  snsrtree.rutgers.edu) -->
+  <condition property="tomcat.deploy.docs" value="${tomcat.home}/htdocs" else="${tomcat.home}/webapps/ROOT">
+  <available file="${tomcat.home.rutgers}"/>
+  </condition>
 
 
   <!-- property name="tomcat.home"     value="/www/snsrtree.rutgers.edu" / -->
@@ -74,7 +80,7 @@
   <property name="dist.src"       value="${app.name}.jar"/>
   <property name="dist.war"       value="${app.name}.war"/>
   <!-- property name="javadoc.home"   value="${deploy.home}/javadoc"/ -->
-  <property name="javadoc.home"   value="javadoc"/>
+  <property name="javadoc.home"   value="webroot/javadoc"/>
  
   <!-- The directory for temporary files (used during installation) -->
   <property name="tmp"   value="/tmp" />
@@ -130,10 +136,6 @@
 <target name="prepare">
   <mkdir  dir="${deploy.home}"/>
   <!-- mkdir  dir="${deploy.home}/applet"/ -->
-  <echo message="Copying files from web/ to ${deploy.home}" />
-  <copy todir="${deploy.home}">
-    <fileset dir="web" excludes=".svn" />
-  </copy>
   <mkdir  dir="${deploy.home}/WEB-INF"/>
   <mkdir  dir="${deploy.classes}"/>
   <!-- copy  file="etc/pages.sh" todir="${deploy.classes}"/ -->
@@ -206,6 +208,17 @@
   <copy todir="${deploy.lib}" -->  
     <fileset dir="lib"><include name="**/*.jar"/></fileset>
   </copy>
+
+  <echo message="Copying files from web/ to ${deploy.home}" />
+  <copy todir="${deploy.home}">
+    <fileset dir="web" excludes=".svn" />
+  </copy>
+
+  <echo message="Copying files from webroot/ to ${tomcat.deploy.docs}" />
+  <copy todir="${tomcat.deploy.docs}">
+    <fileset dir="webroot" excludes=".svn" />
+  </copy>
+
 </target>
 
 <property name="reloadclass.correct" value="org.apache.catalina.ant.ReloadTask"/>
@@ -227,10 +240,25 @@
 -->
 
 <target name="javadoc" depends="prepare">
-  <javadoc sourcepath="src" packagenames="dd.*,dd.engine.*"
+  <exec executable="grep" outputproperty="dndo.ver">
+    <arg line="version src/dd/engine/Main.java"/>
+    <redirector >
+      <outputfilterchain >
+	<replaceregex pattern="[^0-9\. \-]" replace="" flags="g"/>
+      </outputfilterchain>
+    </redirector>
+  </exec>
+ 
+<!--	   Package="true" -->
+  <javadoc sourcepath="src" packagenames="dd.*"
 	   classpath="${compile.classpath}"   
-	   Package="true"
-	   destdir="${javadoc.home}"/>
+	   destdir="${javadoc.home}"
+           use="true"
+	   link="http://java.sun.com/j2se/1.5.0/docs/api/"
+	   header="&lt;em&gt;SNSRTREE ${dndo.ver}&lt;/em&gt;"   
+	   windowtitle="SNSRTREE API" 
+	   overview="overview.html"/>
+
 </target>
 
 <!-- Archives source code, compiled classes, and libraries -->
