@@ -4,7 +4,7 @@ import java.io.*;
 import java.util.*;
 
 
-/** An instance of a Test represents a particular single multi-channel
+/** An instance of the Test class represents a particular single multi-channel
     test (sensor).  This is the simplest type of a Device; more
     complicated Devices are combined from Tests.
 
@@ -323,9 +323,11 @@ public class Test implements Cloneable {
     /** Creates a new Test from a description in text format.
 
 	@param br A reader throgh which the description will be read
-	by the constructor. Typically this would be a file reader, but
-	you may read data from any other source (pipe, StringReader,
-	etc) as well.
+	by the constructor. This is a BufferedReader because line
+	breaks matter. Typically, you'd be passing here a
+	BufferedReader constructed from a file reader, but you may
+	read data from any other source (pipe, StringReader, etc) as
+	well.
 
 	<p>
 	Sample input file:
@@ -338,8 +340,13 @@ cost: .1
 .4 .9
 1 1
 
-</pre> The first line contains the cost; other lines contain
-(sumGood[i], sumBad[i]) pairs; however, unlike the {@link #Test(String _name, int	_nCopies, double _cost, double[], double[], 	int M) multi-argument constructor}, the "trivial" lines "0 0"  and "1 1" are explicitly provided.
+</pre> 
+
+         The first line contains the cost; other lines contain
+	 (sumGood[i], sumBad[i]) pairs; however, unlike the {@link
+	 #Test(String _name, int _nCopies, double _cost, double[],
+	 double[], int M) multi-argument constructor}, the "trivial"
+	 lines "0 0" and "1 1" are explicitly provided.
 
 	@param supposedFileName A string that will be used by the
 	constructor as if it were the name of the file from which the
@@ -438,7 +445,9 @@ cost: .1
     }
 
 
-    /** Saves the test in the same format as used in input 
+    /** Prints the description of the sensor in the same format as
+	used in input (i.e., in the constructor {@link
+	#Test(BufferedReader br, String supposedFileName, int _nCopies)
      */
     public void print(PrintWriter out)	{
 	//out.println("there are " + getM() + " channels");
@@ -453,13 +462,16 @@ cost: .1
 
     
     /** Prints the description of the test in the same format as used
-     * in input
+	in input (i.e., in the constructor {@link #Test(BufferedReader
+	br, String supposedFileName, int _nCopies)}
      */
       public void print(OutputStream out)	{
 	print( new PrintWriter(out));
     }
     
-    /** Returns the description of the test in the same format as used in input 
+    /** Returns the description of the sensor in the same format as
+	used in input (i.e., in the constructor {@link
+	#Test(BufferedReader br, String supposedFileName, int _nCopies)}
      */
      public String toString1() {
 	 StringWriter sw= new StringWriter();
@@ -468,7 +480,10 @@ cost: .1
 	 return sw.toString();
      }
 
-    /** Prints the approximation map, if available.
+    /** Prints the approximation map, if available. This is only
+	applicable if this Test object is an approximation of another
+	Test object, describing a sensor with a greater number of
+	"thinner" channels.
      */
     public void printApproxMap(PrintStream out)	{
 	for(int i = 0; i< getM(); i++)	{

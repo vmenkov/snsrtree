@@ -12,7 +12,16 @@ import javax.swing.*;
 
 import dd.engine.*;
 
-/** It is public because it's used by the web GUI, too */
+/** A PresentedData instance contains links to all information
+    necessary to graphically present the results of a frontier-finding
+    computation. That includes, of course, the frontier itself, as
+    well as the list of sensors based on which it was built, as well
+    as any appropriate auxiliary information.
+
+    This is an abstract class; concrete subclasses contain necessary
+    information to plot appropriate types of results. 
+
+    <p>This class is public because it's used by the web GUI, too */
 abstract public class PresentedData {
     protected final Test[] lastSensorsUsed;    
 
@@ -53,12 +62,18 @@ abstract public class PresentedData {
 	return "Some kind of a graph...";
     }
 
-
+    /** Not supported */
     public void paintFrontier(Graphics2D g2d, Dimension bounds, boolean fromGUI) {
 	// FIXME
 	throw new AssertionError("Not supported");
     }
 
+    /** Paints the frontier (and any auxiliary data) on a specified
+      Graphics2D object.
+      @param fromGUI This value should be true if feedback (user's
+      ability to click on nodes etc.) should be enabled, as opposed to 
+      simply producing a PNG/SVG image file.
+     */
    public void paintFrontier(Graphics2D g2d, boolean fromGUI) {
        paintFrontier(g2d,  getRecommendedDim(), fromGUI);
    }

@@ -27,10 +27,18 @@ public class AnnotatedFrontier extends Frontier {
 	this(f.getPolicies(), f.context, _maxDepth, _startTime, Calendar.getInstance());
     }
 
-
+    /** Returns the recorded time when the frontier computation started */
     public Calendar getStartTime() { return startTime; }
+    /** Returns the recorded time when the frontier computation ended */
     public Calendar getEndTime() { return endTime; }
+    /** Returns the recorded value of maxDepth used in the
+     * construction of this frontier */
     public double getMaxDepth() { return maxDepth; }
+    /** Returns the time taken by the computer to construct the
+     * frontier, in milliseconds. This is based on the wall clock
+     * time, (not CPU time), so should be taken with a grain of salt
+     * in a multitasking environment.
+     */
     public double runtimeMsec() {
 	return endTime.getTimeInMillis() - startTime.getTimeInMillis(); 
     }

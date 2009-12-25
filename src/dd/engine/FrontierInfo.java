@@ -11,12 +11,43 @@ import java.util.*;
  */
 
 abstract public class FrontierInfo {
+    /** Returns the detection rate of the i-th policy
+      
+      @param i The policy position, ranging from -1 to policies.length
+      @return Detection rate, in the range 0 through 1.0 
+    */
     abstract public double getDetectionRate(int i);
-    /** Cost on good objects */
+
+    /** Returns the total average policy cost of the i-th policy
+      on a "good" object.
+      
+      @param i The policy position, ranging from -1 to policies.length
+      @return Total average policy cost on a "good" object, in the range
+      0 through 1.0 + <em>E</em>
+     */
     abstract public double getPolicyCost0(int i);
+
+    /** Returns the total average policy cost of the i-th policy
+      on a "bad" object.
+      
+      @param i The policy position, ranging from -1 to policies.length
+      @return Total average policy cost on a "bad" object, in the
+      range 0 through 1.0 
+     */
     abstract public double getPolicyCostOnBad(int i);
+
+    /** Returns the total average policy cost of the i-th policy
+      on a set of objects in which the fraction of "bad" objects is 
+      equal to this frontier's {@link #context}.pi.
+      
+      @param i The policy position, ranging from -1 to policies.length
+      @return Total average policy cost on a large set objects in
+      which pi*|set| are "bad" and (1-pi)*|set| are "good". The value
+      is in the range 0 through 1.0 + (1-pi)*E
+     */
     abstract public double getPolicyCostPi(int i);
-    /** How many non-trivial policies are stored */
+
+    /** How many non-trivial policies make this frontier */
     abstract public int length();
   
     abstract Frontier getFrontier();
@@ -25,25 +56,32 @@ abstract public class FrontierInfo {
     /** A copy of the array of policies - safe to modify */
     abstract PolicySignature[] getPoliciesCopy();
 
-    /* The frontier, as computed, was meant to be an extreme frontier for 
-     this value of pi. (Should not be mutable beyond the constructor) */
-    //final
-    //public  double pi;
-
+    /** The frontier context stores certain parameters of the
+	algorithm used to consttruct this frontier, as well as the
+	value of pi (expected proportion of "bad" objects) for which the
+	frontier was constructed.
+    */
     public FrontierContext context;
     
-    public  double getPi() { return context.pi; }
-    public  double getMaxCost() { return context.getInspectCostPi(); }
+    /** Accesses the value of pi from the {@link FrontierContext} */
+    public double getPi() { return context.pi; }
+    /** Accesses {@link FrontierContext#getInspectCostPi()} */
+    public double getMaxCost() { return context.getInspectCostPi(); }
+    /** Accesses the value of eps from the {@link FrontierContext} */
     public double getEps() { return context.eps; }
 
     //static final double triangleEps = 1e-9;
 
-    /** By how much is policy No. i more expensive than policy No. (i-1)?
+    /** By how much is policy No. i more expensive than policy
+     * No. (i-1), on "good" items?
      */
     double getIncrementInCost0(int i) {
 	return getPolicyCost0(i) - getPolicyCost0(i-1);
     }
 
+    /** By how much is policy No. i more expensive than policy
+     * No. (i-1), on "bad" items?
+     */
     double getIncrementInCostOnBad(int i) {
 	return getPolicyCostOnBad(i) - getPolicyCostOnBad(i-1);
     }

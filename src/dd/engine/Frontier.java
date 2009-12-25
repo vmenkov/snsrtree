@@ -75,6 +75,7 @@ public class Frontier extends FrontierInfo {
 	for(int i=0; i<policies.length; i++) q[i] = policies[i];
 	return q;
     }
+
     /** Returns the i-th policy of this frontier. The "non-trivial"
       policies are numbered with base 0, meaning that the argument
       i=-1 refers to the (implied) RELEASE policy, and
@@ -87,51 +88,22 @@ public class Frontier extends FrontierInfo {
 	    i==policies.length? context.INSPECT: policies[i]; 
     }
 
-    /** Returns the detection rate of the i-th policy
-      
-      @param i The policy position, ranging from -1 to policies.length
-      @return Detection rate, in the range 0 through 1.0 
-    */
     public double getDetectionRate(int i) {
 	return (i==-1) ? 0: (i==length())? 1 : policies[i].getDetectionRate();
     }
 
-    /** Returns the total average policy cost of the i-th policy
-      on a "good" object.
-      
-      @param i The policy position, ranging from -1 to policies.length
-      @return Total average policy cost on a "good" object, in the range
-      0 through 1.0 + <em>E</em>
-     */
     public double getPolicyCost0(int i) {
 	return getPolicy(i).getPolicyCost();
     }
 
-    /** Returns the total average policy cost of the i-th policy
-      on a "bad" object.
-      
-      @param i The policy position, ranging from -1 to policies.length
-      @return Total average policy cost on a "bad" object, in the
-      range 0 through 1.0 
-     */
     public double getPolicyCostOnBad(int i) {
 	return getPolicy(i).getPolicyCostOnBad();
     }
 
-    /** Returns the total average policy cost of the i-th policy
-      on a set of objects in which the fraction of "bad" objects is 
-      equal to this frontier's {@link #context}.pi.
-      
-      @param i The policy position, ranging from -1 to policies.length
-      @return Total average policy cost on a large set objects in
-      which pi*|set| are "bad" and (1-pi)*|set| are "good". The value
-      is in the range 0 through 1.0 + (1-pi)*E
-     */
     public double getPolicyCostPi(int i) {
 	 return getPolicy(i).getPolicyCost(context.pi);
     }
     
-    /** How many non-trivial policies are stored */
     public int length() {
 	return policies.length;
     }
@@ -548,6 +520,10 @@ public class Frontier extends FrontierInfo {
 	want); you need to provide an array of pi values, and a frontier will
 	be computed for each one.
 
+	<p>
+	There is further discussion of this algorithm by Paul Kantor
+	in the document "DNDO.C.D.curves.MenuPart2.doc"	(2009-05-12).
+	
 	<p>All parameters of this method, other than piList, have the
 	same general semantics as in {@link #buildFrontier(Test[],
 	FrontierContext, int maxDepth, Vector others)} 
@@ -807,6 +783,9 @@ public class Frontier extends FrontierInfo {
     }
 
 
+    /** Produces a human-readable description of all policies forming
+     * this frontier
+     */
     public String toString() {
 	StringBuffer b=new StringBuffer();
 	b.append("Fold="+Options.fold+"\n");
@@ -826,14 +805,22 @@ public class Frontier extends FrontierInfo {
 	return b.toString();
     }
 
+    /** Much same thing as toString(), but with immediate printing out the data
+	- to save memory 
+    @see #toString() */
     public void print(PrintStream out) {
 	print(new PrintWriter(out));
 	out.flush();
     }
 
     /** Much same thing as toString(), but with immediate printing out the data
-	- to save memory */
+	- to save memory 
+    @see #toString() */
     public void print(PrintWriter out) {
+	print(out, 120);
+    }
+
+    public void print(PrintWriter out, int L) {
 	out.println("Fold="+Options.fold);
 	out.println("Frontier contains " + policies.length + " non-trivial policies");
 		
@@ -843,7 +830,7 @@ public class Frontier extends FrontierInfo {
 		    Policy.RELEASE.toTreeString() ); 
 	for(int i=0; i<policies.length; i++) {
 	    out.print("[POLICY "+i+"] "+policies[i].toShortString() + " ");
-	    policies[i].printTree(out, 120, true);
+	    policies[i].printTree(out, L, true);
 	    out.println();
 	    out.flush();
 	}	    

@@ -8,7 +8,13 @@ import java.awt.geom.AffineTransform;
 
 import dd.engine.*;
 
-/** It is public because it's used by the web GUI, too */
+/** An instance of this subclass is produced instead of more useful
+    types of {@link PresentedData} when, due to some error, there is
+    nothing to display. This is somewhat useful when, e.g., we have a
+    servlet which is supposed to return a PNG image - but has nothing
+    useful to return other than an error message.
+
+    <p> It is public because it's used by the web GUI, too */
 public class PresentedFailure extends PresentedData {
 
     String msg[]={"eh?"};
@@ -22,7 +28,8 @@ public class PresentedFailure extends PresentedData {
 	msg = new String[] {m};
     }
 
-
+    /** Just "paints" an error message 
+     */
     public void paintFrontier(Graphics2D g2d, Dimension bounds, boolean fromGUI) {
 	FontMetrics fm = g2d.getFontMetrics();
 	int textHt  = fm.getMaxAscent();

@@ -3,8 +3,8 @@ package dd.engine;
 import java.io.*;
 
 /** This is a compact representation of the (c,d) curve - same data
-    that are stored in a Frontier when signaturesOnly=true, but in a
-    more compact format.  * As in Frontier, since every convex hull
+    that are stored in a {@link Frontier} when signaturesOnly=true, but in a
+    more compact format. As in Frontier, since every convex hull
     includes the two trivial policies, (0,0) and (1,1), we don't
     explicitly store them in the representation.
  */
