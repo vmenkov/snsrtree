@@ -4,7 +4,8 @@ import java.text.*;
 import java.io.*;
 
 
-/** A "PolicySignature" just stores the cost and detection rate of a Policy. 
+/** A "PolicySignature" stores the cost and detection rate of a {@link
+ * Policy}. We use PolicySignature objects in the space-efficient mode.
  */
 
 public class PolicySignature {
@@ -15,7 +16,7 @@ public class PolicySignature {
 
     /** Builds an instance that only has c and d, not e. For e, it
      * store something that would cause an error later...
-     * This method must not be used in multi-pi runs.
+     * This method must not be used in multi-pi runs.     
      */
     PolicySignature( double _c, double _d) {
 	c = _c;
@@ -23,7 +24,14 @@ public class PolicySignature {
 	d = _d;
     }
 
-    PolicySignature( double _c, double _e, double _d) {
+    /* Creates a PolicySignature object that describes the costs and
+      the detection rate of a policy.
+
+      @param _c cost on good objects
+      @param _e cost on bad objects
+      @param _d detection rate
+     */
+    public PolicySignature( double _c, double _e, double _d) {
 	c = _c;
 	e = _e;
 	d = _d;

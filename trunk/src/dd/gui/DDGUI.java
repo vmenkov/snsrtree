@@ -457,7 +457,7 @@ public class DDGUI extends MyJFrame {
 	    try {		
 		if (presented instanceof PresentedFrontier) {
 		    PrintWriter w = new PrintWriter(file);
-		    ((PresentedFrontier)presented).saveFrontier(w);
+		    ((PresentedFrontier)presented).saveFrontier(w, 0);
 		    w.close();
 		    setLabel("Frontier has been written to file "+ filepath);
 		} else {

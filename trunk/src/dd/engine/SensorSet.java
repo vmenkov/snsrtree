@@ -2,6 +2,10 @@ package dd.engine;
 
 import java.util.*;
 
+/** An instance of this class described how many identical sensors of
+ * each type have been used in a particular frontier. This is an
+ * auxiliary class, probably of little use to an API user.
+ */
 public class SensorSet {
     static int maxCnt[];
     /** Array representation */

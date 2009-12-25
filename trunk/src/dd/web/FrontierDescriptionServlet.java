@@ -83,7 +83,7 @@ public class FrontierDescriptionServlet extends HttpServlet {
 		w.println("Unexpected data stored. serial=" + 
 			  getSerial(request));
 	    } else {
-		((PresentedFrontier)presented).saveFrontier(w);
+		((PresentedFrontier)presented).saveFrontier(w, 120);
 	    }
 	    w.flush();
 	    

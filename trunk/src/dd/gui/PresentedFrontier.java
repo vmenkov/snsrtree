@@ -141,7 +141,10 @@ public class PresentedFrontier extends PresentedData {
 	new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 
 
-    public void saveFrontier( PrintWriter w) {
+    /**
+       @param L max line length hint. (0 means "print everything")
+     */
+    public void saveFrontier( PrintWriter w, int L) {
 
 	w.println("----------- INPUTS: ----------------------");
 	w.println("A set of " +  lastSensorsUsed.length + " sensors.");
@@ -169,7 +172,7 @@ public class PresentedFrontier extends PresentedData {
 	w.println("-------------- OUTPUT: ---------------------");
 	w.flush();
 	//w.println( frontier );
-	frontier.print(w);
+	frontier.print(w, L);
 	w.println();
     }
 	

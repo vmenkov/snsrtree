@@ -3,11 +3,32 @@ package dd.engine;
 import java.text.*;
 import java.io.*;
 import java.util.Arrays;
+import java.util.regex.*;
 
 
-/** A Policy instances represents a policy in a recursive, tree-like
-    way, as a combination of a top-level test and a list of
-    lower-level policies associated with that test's channels.
+/** A Policy instance represents a policy, that is a decision tree whose
+    nodes are sensors, and whose leaves are "INSPECT" or "RELEASE"
+    actions. The data are represented in a recursive, tree-like way:
+    that is, a policy instance stores the top-level test and a list of
+    lower-level policies associated with that test's channels. The two
+    simplest policies are {@link #INSPECT} and {@link #RELEASE}, which
+    have no sensors, just a single non-conditional action.
+
+    <P> A Policy object also stores information about the policy's
+    detection rate and average total cost (separately on "good" and on
+    "bad" objects). This total policy cost includes the cost of
+    testing (i.e., the test cost of all sensors in the tree nodes),
+    the inspections (in the {@link Policy#INSPECT INSPECT} nodes), and
+    the extra "interruption of commerce" cost resulting from
+    inspecting "good" objects; all of these are appropriately weighted
+    based on the percentage of good and bad objects that end up going
+    through every part of the decision tree.
+
+    <p>Policy is an extension of the "simplified" class, called {@link
+    PolicySignature}, whose instances only store the cost and
+    detection rate numbers for the policiesq, but not the actual
+    decision trees.
+
  */
 
 public class Policy extends PolicySignature {
@@ -15,12 +36,28 @@ public class Policy extends PolicySignature {
      could store null here, if it was a trivial policy (INSPECT or
      RELEASE); but now it's not done, since I/R are implemented as
      PolicySignature instances  */
-    Test q;
+    final Test q;
+
     /** Policies attached to the output channels of q. The length of this
 	array must be equal to the number of q's channels (i.e., q.getM())
     */
     PolicySignature outputs [];
 
+    /** Creates a Policy object from the root sensor and the list of
+	child policies asscociated with its output channels. For
+	efficiency's sake, correct pre-computed costs and detection
+	rates must be supplied as well.
+
+	@param _q Root sensor
+	@param Child policies asscociated with the sensor's output
+	channels. The length of this array must be equal to the number
+	of the sensor's channels.
+
+	@param _c cost on good objects
+	@param _e cost on bad objects
+	@param _d detection rate
+ 
+     */
     Policy(Test _q, PolicySignature[] _outputs, double _c, double _e, double _d) {
 	super(_c, _e, _d);
 	q = _q;
@@ -28,9 +65,46 @@ public class Policy extends PolicySignature {
 	if (q.getM() != outputs.length) throw new AssertionError("Mismatch in Policy(q,outputs): q.m="+q.getM()+", outputs.length=" + outputs.length);
     }
 
-    /** Full tree equality. No attempt to identify equivalent trees (as in,
-	(A? I : (B? I : R))     and
-	(B? I : (A? I : R))     
+    /** Creates a Policy object from the root sensor and the list of
+	child policies asscociated with its output channels. This
+	method computes the costs and detection rates of the new policy
+	based on those of the child policies.
+
+
+	@param _q Root sensor
+	@param Child policies asscociated with the sensor's output
+	channels. The length of this array must be equal to the number
+	of the sensor's channels.
+
+	@see  Policy(Test _q, PolicySignature[] _outputs, double _c, double _e, double _d)
+     */
+    public static Policy constructPolicy(Test q,  PolicySignature[] outputs) {
+	double c = 0, d=0, e=0;
+	if (q.getM() != outputs.length) throw new IllegalArgumentException("Channel count mismatch: " +  outputs.length + " children policies given for " + q.getM() + " channels of the sensor");
+
+	for(int i=0; i< outputs.length; i++) {
+	    d += q.getB(i) * outputs[i].d;
+	    c += q.getG(i) * outputs[i].c;
+	    e += q.getB(i) * outputs[i].e;
+	}
+
+	return new Policy(q, outputs, c,e,d);
+    }
+
+
+
+    /** Checks for full tree equality. No attempt is made to identify
+	equivalent trees (e.g., this method won't know that the policies
+	<pre>(A? I : (B? I : R))</pre>
+	and 
+	<pre>(B? I : (A? I : R)),</pre>
+
+	where the costs and ROC curves are A and B are identical, are
+	equivalent)
+
+	@param o Must be a Policy object
+	@return True if o describes the same exactly decision tree as
+	this policy.
     */
     public boolean equals(Object o) {
 	if (o == this) return true; // e.g. INSPECT or RELEASE
@@ -44,7 +118,9 @@ public class Policy extends PolicySignature {
 	return true;
     }
 
-    /** An elementary efficient non-trivial policy 
+    /** Produces an elementary efficient non-trivial policy
+
+	@param _q The root sensor of the new Policy
 
 	@param level To how many highest-quality channels we apply
 	INSPECT. Thus, argument values of 0 and M are not legal, because the
@@ -52,6 +128,12 @@ public class Policy extends PolicySignature {
 	would be equivalent to a trivial RELEASE policy, and with level=M, to
 	the trivial INSPECT policy; but unlike RELEASE and INSPECT, these
 	policies would also contain an unnecessary test q.
+
+	The constructor creates a policy that consists of the
+	specified sensor, and a number of INSPECT and RELEASE
+	leaves. The INSPECT leaves are attached to the first ''level''
+	output channels of the sensor, and the RELEASE ones, to the
+	remaining channels.
      */
     public Policy(Test _q, int level) {
 	super(_q, level);
@@ -66,14 +148,24 @@ public class Policy extends PolicySignature {
     }
 
   
-    /** The two trivial policies, which form the ends of every efficient 
-	frontier, but aren't usually stored */
+    /** The trivial "release-all-objects" policy. Its cost (on any
+     * object) and detection rate are both equal to 0. */
     public static final PolicySignature
 	RELEASE = new PolicySignature(0,0,0);
 
-    /* This can be changed from Options.setE() */
+    /** The trivial "inspect-all-objects" policy. Its detection rate is
+      1. Its cost on "bad" objects is 1 (by definition, as the
+      inspection cost is our unit of cost), while its cost on "good" objects 
+      is 1+<em>E</em>. 
+
+      <p>The value of <em>E</em>, and the policy stored at
+      Policy.INSPECT, can be by a call to {@link Options#setE(double)}
+    */
     public static PolicySignature INSPECT = Options.mkInspect();
 
+    /** Returns the array of "child" policies associated with output
+     * channels of the sensor.
+     */
     public PolicySignature[] getOutputs() {
         return outputs;
     }
@@ -86,10 +178,15 @@ public class Policy extends PolicySignature {
 	return j-i;
     }
 
-    /** Returns a string fully describing the operations of this policy
+    /** Returns a human-readable string fully describing the
+	operations of this policy
 	@param L max string length hint: don't dig too deep... L=0 means "don't restrict"
      */
     public String toTreeString(int L, boolean fold) {
+	StringWriter w = new StringWriter();
+	printTreeString(new PrintWriter(w), L,fold); 
+	return w.toString();
+	/*
 	if (q==null) {
 	    // 0 and 1 are the only 2 legal values in trivial policies
 	    return super.toTreeString(L,fold);
@@ -116,9 +213,23 @@ public class Policy extends PolicySignature {
 	    b.append(")");
 	    return b.toString();
 	}
+	*/
     }
 
 
+    /** Prints a human-readable string fully describing the
+	operations of this policy
+
+	@param L max string length hint. If it's non-zero, it's
+	interpreted as max-length-hint for the output line, and can be
+	used to create manageable, even if incomplete, human-readable
+	description. The value L=0 means "don't abbreviate", and
+	should be used when a complete - even if potentially large -
+	description is desired.
+
+	@param fold If true, a more compact format is used whenever
+	adjacent subtrees are identical
+     */
     public int printTreeString(PrintWriter w, int L, boolean fold) {
 	int len=0;
 	if (q==null) {
@@ -157,18 +268,24 @@ public class Policy extends PolicySignature {
 	return len;
     }
 
+    /** Same as printTree(w), but without truncating the text (i.e.,
+      L=0), and with "folding" identical subtrees.
 
+       @see  #printTree(PrintWriter w, int L, boolean fold)
+     */
     public int printTree(PrintWriter w) {
 	return printTree(w, 0, true);
     }
 
+  
 
     /** Dimensions of the tree, for the benefit of plotting tools.
-     The sizes of a trivial policy are all zeros. */
+     The sizes of a trivial policy (INSPECT or RELEASE) are all
+     zeros. */
     static public class Sizes {
-	public int height, width;
+	final public int height, width;
 	/** This structure is to be repeated so many times on several
-	    consecutive outpput channels
+	    consecutive output channels
 	*/
 	public int count=1;
 	public Sizes children[];
@@ -294,9 +411,34 @@ public class Policy extends PolicySignature {
     }
 
 
-    /** Prints the cumulative (G,B) curve for the properly ordered channels 
-	of the policy. The i-th line (starting from 0-th) contains the 
-	cumulative sensor costs 
+    /** Prints the cumulative (G,B) curve for the properly ordered
+	channels of the policy. The i-th line (starting from 0-th) contains the 
+	cumulative sensor costs.
+
+	This is a rather peculiar representation, described by Endre
+	Boros in the document "DNDO.C.D.curves.MenuPart2.doc"
+	(2009-05-12) as follows:
+	
+	<p>
+	 More precisely, delete the terminal actions from the leaves,
+	 compute C(good) and C(bad) which are the expected cost of
+	 inspection (only sensor costs) for good and bad containers
+	 respectively.
+
+	 <p> Also, compute g(j) and b(j) as the probability that a
+	 good (resp., bad) container gets to the leaf node j, sort the
+	 leaves by decreasing b(j)/g(j) (left-to-right if generation
+	 went by the usual process), and output a file similar to the
+	 sensor files, containing C(good), C(bad) in the first line,
+	 and then the pairs
+	 <center>
+	 \sum_{j=1}^i g(j), \sum_{j=1}^i b(j)
+	 </center>
+	 
+	 for i=0,...,L, where L is the number of leaves. Note that
+	 these pairs, as coordinates of points must form an ROC curve
+	 from (0,0) to (1,1).
+	 
      */
     public void saveAsADevice(PrintWriter w) {
 	GBPair[] h = toGBVector();

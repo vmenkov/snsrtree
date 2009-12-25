@@ -17,7 +17,8 @@ import dd.engine.*;
 import org.apache.batik.svggen.SVGGraphics2D;
 
 /**
- * is the main panel in the DD interactive GUI window.
+ * The main panel in the DNDO Frontier Finder interactive GUI window
+ * ({@link DDGUI}).
  */
 public class DDPanel extends JPanel implements ActionListener, 
 				    MouseInputListener,  SVGAwareComponent {
@@ -156,7 +157,7 @@ s += " C(pi="+ found.f.getPi() + ")=" + fmt.format(pol.getPolicyCost(found.f.get
 	popupLabel[1].setText("dD/dC=" + fmt.format(r));
 
 	final int L = 100;
-	s = pol.toTreeString(L*3, Options.fold);
+	s = pol.toTreeString(L*2, Options.fold);
 	s = s.replaceAll("I ", "I").replaceAll("R ", "R");
 	// if (s.length() > L) s = s.substring(0,L-3) +  "...";
 	popupLabel[2].setText(s);

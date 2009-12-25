@@ -6,17 +6,19 @@ import java.util.regex.*;
 
 
 /** 
-    Usage:
-    java [-Dvs=VM1|EB1][-Deps=0.0001] [-DmaxDepth=n][-DsignaturesOnly=false] [-Dverbsity=0|1|...] dd.engine.Main config.txt
+    The main class for the DNDO Frontier Finder batch
+    application. (For the GUI application, see {@link dd.gui.DDGUI}
 
     <p>
-    Vertex skipping methods:
-    <ul>
-    <li>VM1: allows dropping vertices within eps (in both C and D directions) from the saved vertex
-    <li>EB1: as outlined in Endre's messages around 2009-05-14
-    </ul>
+    Usage:
+    <pre>
+    java [-Dvs=VM1|VM2|EB1][-Deps=0.0001] [-DmaxDepth=n][-DsignaturesOnly=false] [-Dverbsity=0|1|...] dd.engine.Main config.txt
+    </pre>
+    
+    <p> For the explanation of vertex skipping methods (-Dvs=...), see
+    {@link VSMethod}.
 
-    <p>Versions:
+    <p>Recent versions:
     <ul>
     <li>1.7.8 -  (2009-10-22)
     <li>1.7.9 -  (2009-12-15) - more features for Web UI
