@@ -50,8 +50,8 @@ public class Options {
     /** To make generating image files easier ... */
     final static double defaultSvgEps = 5e-4; 
 
-    /** Retrieves the "plotting epsilon" parameter, set by {@link #
-     * setSvgEps(double) }
+    /** Retrieves the "plotting epsilon" parameter, set by {@link
+     * #setSvgEps(double) }
      */
     public static double getSvgEps() {
 	return options.getOptionDouble( SVG_EPS, defaultSvgEps);
@@ -83,10 +83,17 @@ public class Options {
     
     static public boolean paranoid = options.getOption(PARANOID, false);
 
-    /** If true, apply {@link vertex-skipping VSMethod} "early",
+    /** If true, apply the {@link VSMethod vertex-skipping process} "early",
      * i.e. to the sensors' ROC curves, and not just to policies built
      * from multiple sensors. */
     static public boolean epsAppliesToSensors = true;
+
+    /** If true, policies, when saved or dsplayed, are described in terms of 
+	simplified sensors (rather than original ones). The distinction
+	makes no difference when {@link #epsAppliesToSensors} = false, i.e. when
+	sensors themselves are not simplified.
+     */
+    static public boolean useSimplifiedSensors = true;
 
     /** If true, the Frontier Finder only stores (cost_good, cost_bad,
 	detection_rate) triplets (i.e., {@link PolicySignature}s)
@@ -102,7 +109,7 @@ public class Options {
 
     /** If true, Frontier Finder uses compact representation (text and
 	tree-plot) for trees, whenever there are identical subtrees */
-    static public boolean fold =  options.getOption(FOLD, false);
+    static public boolean fold =  options.getOption(FOLD, true);
 
     /** Controls debug level */
     static public int verbosity = options.getOption("verbosity", 1);

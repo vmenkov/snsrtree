@@ -19,6 +19,14 @@ one looks at all bad policies as a group, there is no correlation
 between their "grading" by one test and their "grading" by any other
 test. The same goes for all good policies.
 
+<h2>Using Frontier Finder</h2>
+
+<p>You can use the Frontier Finder in the following ways:
+<ol>
+<li>Accessing out application, "<a href="http://snsrtree.rutgers.edu/">Frontier Finder Lite</a>" via your web browser
+<li>Downloading and installing full-featured Frontier Finder application on your desktop. See <a href="../readme.html" target="top">readme</a> for details.
+<li>Using Frontier Finder API in your own software applications. Read the rest of this document, and follow links!
+</ol>
 
 <h2>Getting started with Frontier Finder API</h2>
 
@@ -27,7 +35,8 @@ Detection Frontier Finder API in your application.</p>
 
 <h3>Dataflow overview</h3>
 
-<p>One would usually use the Frontier Finder API in the following way:
+<p>One's application would usually use the Frontier Finder API in the
+following way:
 
 <ol>
 <li>Create a list of {@link dd.engine.Test} objects representing
@@ -44,12 +53,18 @@ FrontierContext, int, Vector)} for pi=0, or {@link
 dd.engine.Frontier#buildFrontiersMultiPi(double[], Test[], FrontierContext, int maxDepth)} for
 non-zero pi.
 
-<li>Extract desired information (e.g., policy trees) from the a {@link
+<li>Extract desired information (e.g., {@link  dd.engine.Policy Policy} trees) from the a {@link
 dd.engine.Frontier} object(s) returned. 
-
 </ol>
-
 </p>
+
+<p>The {@link dd.engine.Test}, {@link  dd.engine.Frontier}, and {@link  dd.engine.Policy} classes all
+have I/O methods to save the data structures in human readable format,
+and to initialize them from human-readable description.
+
+<p>The package dd.gui (which is used in our Frontier Finder
+application) provides a graphical user interface for viewing Frontiers
+and Policies. 
 
 </body>
 </html>

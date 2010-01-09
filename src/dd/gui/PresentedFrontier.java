@@ -2,11 +2,11 @@ package dd.gui;
 
 import java.io.*;
 import java.util.*;
+import java.util.regex.*;
 import java.text.*;
 
 import java.awt.*;
 import java.awt.geom.*;
-//import javax.swing.*;
 
 import dd.engine.*;
 
@@ -128,20 +128,24 @@ public class PresentedFrontier extends PresentedData {
 
     }
    
-    /*
-    static Point2D.Double policy2point(PolicySignature pol, double pi) {
-	return new  Point2D.Double(pol.getPolicyCost(pi), 
-				   pol.getDetectionRate());
-    }
-    */
-
     public Calendar getEndTime() { return frontier.getEndTime(); }
 
     private static final DateFormat timeFmt = 
 	new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 
 
-    /**
+    /** Saves all pertinent information - the sensors and the frontier
+       of the policy set based on them - in a human-readable
+       format. The output goes to a PrintWriter (typically, associated
+       with a text file).
+
+       The sensors will be described in their "original" or actually
+       stored (approximated) form, based on the flag {@link
+       Options#useSimplifiedSensors}; policies are described
+       accordingly.
+
+       @param w The writer to which the data will be written
+
        @param L max line length hint. (0 means "print everything")
      */
     public void saveFrontier( PrintWriter w, int L) {
@@ -149,13 +153,19 @@ public class PresentedFrontier extends PresentedData {
 	w.println("----------- INPUTS: ----------------------");
 	w.println("A set of " +  lastSensorsUsed.length + " sensors.");
 	for(int i=0; i< lastSensorsUsed.length; i++) {
-	    w.println("Sensor["+(i+1)+"], name="+
-		      lastSensorsUsed[i].getName()+", multiplicity="+lastSensorsUsed[i].getNCopies()+":");
-	    w.println(lastSensorsUsed[i]);
+	    Test sensor = lastSensorsUsed[i];
+	    if (!Options.useSimplifiedSensors && sensor.getOrig()!=null) {
+		sensor = sensor.getOrig();
+	    }
+
+	    w.println("Sensor["+(i+1)+"], name="+ sensor.getName()+
+		      ", multiplicity="+sensor.getNCopies()+":");
+	    w.println(sensor);
 	}
 	w.flush();
 	w.println("------------ OPTIONS: ---------------------");
 	w.println("eps=" + frontier.getEps());		
+	w.println("vs=" + frontier.context.vs);		
 	w.println("maxDepth=" + frontier.getMaxDepth());		
 	w.println("------------ RUNTIME: ---------------------");
 	w.println("Frontier computation started at  " + 
@@ -176,6 +186,129 @@ public class PresentedFrontier extends PresentedData {
 	w.println();
     }
 	
+    /** Reads in a human-readable frontier description as produced by 
+	{@link #saveFrontier( PrintWriter, int L)}. Of course, the 
+	frontier must have been saved without truncating policy descriptions, 
+	i.e. with L=0.
+     */
+    public static PresentedFrontier readFrontier(BufferedReader br)  throws IOException, DDParseException{
+	String line;
+	Pattern optionsPattern =  Pattern.compile("\\-.*\\s*OPTIONS:.*");
+	Pattern outputPattern =  Pattern.compile("\\-.*\\s*OUTPUT:.*");
+	// Sensor[1], name=SS1g, multiplicity=1:
+	final String intPar = "([(0-9]+)";
+	Pattern sensorPattern = 
+	    Pattern.compile("Sensor\\["+intPar+"\\],\\s*name="+   Test.idPar + 
+			    ",\\s*multiplicity=" + intPar + ":\\s*");
+
+	// Parse tests, in INPUTS section
+	Vector<Test> v= new 	Vector<Test>();
+	while( (line = br.readLine())!=null
+	       && !optionsPattern.matcher(line).matches() ) {
+	    Matcher m = sensorPattern.matcher(line);
+	    if (!m.matches()) {
+		//System.out.println("Not a Sensor line: " + line);
+		continue;
+	    }
+	    int j= Integer.parseInt(m.group(1));
+	    if (j!=v.size()+1) {
+		throw new   DDParseException(line, "Expected sensor number mismatch: expected " + (v.size()+1) + ", found " + j);
+	    }
+	    j--;
+	    String name = m.group(2);
+	    int mult= Integer.parseInt(m.group(3));
+	    line = br.readLine();
+	    Test t =Test.parseTest2(line, name, mult);
+	    v.addElement(t);
+	}
 	
+	Test[] sensors = v.toArray(new Test[0]);
+
+	// Parse OPTIONS section
+	int maxDepth = SensorSet.maxSetSize(sensors);
+	double eps = 0;
+	VSMethod vs = VSMethod.VM1;
+	Pattern maxDepthPattern = 
+	    Pattern.compile("\\s*maxDepth\\s*=\\s*"+ intPar + "\\s*");
+
+	Pattern epsPattern = 
+	    Pattern.compile("\\s*eps\\s*=\\s*"+ Test.numPar + "\\s*");
+
+	Pattern vsPattern = 
+	    Pattern.compile("\\s*vs\\s*=\\s*(\\S+)\\s*");
+
+	while( (line = br.readLine())!=null
+	       && !outputPattern.matcher(line).matches() ) {
+	    Matcher m =  maxDepthPattern.matcher(line);
+	    if (m.matches()) {
+		maxDepth = Integer.parseInt(m.group(1));
+		continue;
+	    }
+	    m =  epsPattern.matcher(line);
+	    if (m.matches()) {
+		eps = Double.parseDouble(m.group(1));
+		continue;
+	    }
+	    m =  vsPattern.matcher(line);
+	    if (m.matches()) {
+		vs = VSMethod.valueOf(m.group(1));
+		continue;
+	    }
+	}
+
+
+	// Parse policies, in OUTPUTS section
+	PolicyParser parser = new PolicyParser(sensors);
+
+	//[POLICY 0] (0.11 0.36) (B: (A: I 2*R) R)
+	Pattern polStartPattern = 
+	    Pattern.compile("\\[POLICY\\s+"+intPar+"\\]\\s*\\(\\s*"+ 
+			    Test.numPar+ "\\s+" + Test.numPar + "\\s*\\)\\s*");
+
+	Vector<PolicySignature> vp = new Vector<PolicySignature>();
+	while( (line = br.readLine())!=null ) {
+	    Matcher m = polStartPattern.matcher(line);
+	    if (m.lookingAt()) {
+		System.out.println("Found policy line: " + line);
+		int j =  Integer.parseInt(m.group(1));
+		if (j != vp.size()) {
+		     new   DDParseException(line, "Expected pol number mismatch: expected " + (vp.size()+1) + ", found " + j);
+		}
+		String s = line.substring(m.end(0), line.length());
+		System.out.println("parsing policy: " + s);
+		PolicySignature pol = parser.parseTree(s);		
+		System.out.println("parsed into policy: " + pol + " " + pol.toTreeString());
+		vp.addElement(pol);
+	    } else {
+		//System.out.println("Not a policy line: " + line);
+	    }
+	}	    
+
+	Calendar cal = Calendar.getInstance();
+	AnnotatedFrontier af = new 
+	    AnnotatedFrontier(vp.toArray( new PolicySignature[0]), 
+			      new FrontierContext(false, 0.0, vs, eps), maxDepth,
+			      cal, cal);
+
+	return new PresentedFrontier(sensors, af, null);
+
+	
+    }
+
+    /** Just for testing */
+    static public void main(String [] argv) throws IOException, DDParseException {
+	if (argv.length != 1) throw new AssertionError("no file name");
+	FileReader in = new FileReader(argv[0]);	    
+	BufferedReader br = new BufferedReader( in );
+	System.out.println("Reading " + argv[0]);	    
+	PresentedFrontier f =  readFrontier(br);
+	in.close();
+	int i=0;
+	for( Test q: f.lastSensorsUsed ) {
+	    System.out.println("Read sensor["+i+"]: " + q);
+	    i++;
+	}
+	
+    }
 
 }

@@ -10,7 +10,7 @@ public class AnnotatedFrontier extends Frontier {
     int maxDepth;
     /* Computation timing */
     Calendar startTime, endTime; 
-    AnnotatedFrontier(PolicySignature[] p, FrontierContext _context, int _maxDepth,
+    public AnnotatedFrontier(PolicySignature[] p, FrontierContext _context, int _maxDepth,
 		      Calendar _startTime, Calendar _endTime) {
 	super(p, _context);
 	maxDepth = _maxDepth;

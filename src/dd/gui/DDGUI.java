@@ -8,7 +8,7 @@ import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.filechooser.*;
 import java.io.*;
-import java.util.Vector;
+import java.util.*;
 import java.text.*;
 
 import dd.engine.*;
@@ -39,7 +39,8 @@ public class DDGUI extends MyJFrame {
  
     // GUI components - menu items
     private JMenuItem openConfigItem;          // file menu
-    private JMenuItem readPiListItem;          // file menu
+    private JMenuItem readPiListItem;          
+    private JMenuItem readFrontierItem;          
 
     private JMenuItem saveFrontierItem;
     private JMenuItem writeFrontierImgItem;
@@ -55,7 +56,17 @@ public class DDGUI extends MyJFrame {
     private JCheckBoxMenuItem otherFrontItem; 
     private JCheckBoxMenuItem foldItem; 
     private JCheckBoxMenuItem applyEpsItem;
+    private JCheckBoxMenuItem useSimplifiedSensorsItem;
     private JMenuItem optionsItem;
+
+    private JMenu fileMenu, runMenu, optionsMenu;
+
+    void setMenuEnabled(boolean yes) {
+	fileMenu.setEnabled(yes);
+	runMenu.setEnabled(yes);
+	optionsMenu.setEnabled(yes);
+    }
+
 
     public DDGUI() {
 	super("Deceptive Detection Policy Frontier Finder, version "+ 
@@ -66,7 +77,8 @@ public class DDGUI extends MyJFrame {
 	MenuHandler menuHandler = new MenuHandler();
 	
 	// file menu
-	JMenu fileMenu = new JMenu("File");
+	//JMenu 
+	fileMenu = new JMenu("File");
 	menuBar.add(fileMenu);
 	
 	openConfigItem = new JMenuItem("Read Config file");//, 'O' );
@@ -76,6 +88,10 @@ public class DDGUI extends MyJFrame {
 	readPiListItem= new JMenuItem("Read Pi list file");//, 'O' );
 	readPiListItem.addActionListener(menuHandler);
 	fileMenu.add(readPiListItem);
+
+	readFrontierItem= new JMenuItem("Read saved frontier file");//, 'O' );
+	readFrontierItem.addActionListener(menuHandler);
+	fileMenu.add(readFrontierItem);
 
 	fileMenu.addSeparator(); // separate line
 
@@ -92,15 +108,14 @@ public class DDGUI extends MyJFrame {
 	fileMenu.add(saveSensorsItem);
 	
 
-
-	fileMenu.addSeparator(); // separate line
 	
 	exitItem = new JMenuItem("Exit"); //, 'x' );
 	exitItem.addActionListener(menuHandler);
 	fileMenu.add(exitItem);
 
 	// run menu
-	JMenu runMenu = new JMenu("Run");
+	//JMenu 
+	runMenu = new JMenu("Run");
 	menuBar.add(runMenu);
 
 	computeFrontierItem = new JMenuItem("Compute Frontier"); //, 'x' );
@@ -108,7 +123,8 @@ public class DDGUI extends MyJFrame {
 	runMenu.add(computeFrontierItem);
 
 	// options menu
-	JMenu optionsMenu = new JMenu("Options");
+	//JMenu 
+	optionsMenu = new JMenu("Options");
 	menuBar.add(optionsMenu);
 
 	debugItem = new JCheckBoxMenuItem("Debug", Frontier.debug);
@@ -132,9 +148,13 @@ public class DDGUI extends MyJFrame {
 	otherFrontItem.addActionListener(menuHandler);
 	optionsMenu.add(otherFrontItem);
 
-	applyEpsItem = new JCheckBoxMenuItem("Apply eps to sensors", Options.epsAppliesToSensors);
+	applyEpsItem = new JCheckBoxMenuItem("Simplify sensors using eps", Options.epsAppliesToSensors);
 	applyEpsItem.addActionListener(menuHandler);
 	optionsMenu.add( applyEpsItem);
+
+	useSimplifiedSensorsItem = new JCheckBoxMenuItem("Describe policies in terms of simplified sensors", Options.useSimplifiedSensors);
+	useSimplifiedSensorsItem.addActionListener(menuHandler);
+	optionsMenu.add( useSimplifiedSensorsItem);
 
 	optionsItem = new JMenuItem("More algo options..."); //, 'o' );
 	optionsItem.addActionListener(menuHandler);
@@ -185,6 +205,8 @@ public class DDGUI extends MyJFrame {
 		openConfig();
 	    else if (e.getSource() ==readPiListItem)
 		readPiList();
+	    else if (e.getSource() ==readFrontierItem)
+		readFrontier();
 	    else if (e.getSource() == saveFrontierItem)
 		saveFrontier();
 	    else if (e.getSource() == writeFrontierImgItem)
@@ -213,6 +235,10 @@ public class DDGUI extends MyJFrame {
 	    } else if (e.getSource() ==  applyEpsItem) {		    
 		Options.epsAppliesToSensors= applyEpsItem.isSelected();
 		System.out.println("Setting Options.applyEpsItem=" + Options.epsAppliesToSensors);
+	    } else if (e.getSource() ==  useSimplifiedSensorsItem) {
+		Options.useSimplifiedSensors = useSimplifiedSensorsItem.isSelected();
+		System.out.println("Setting Options.useSimplifiedSensors=" + 
+				   Options.useSimplifiedSensors );
 	    } else if (e.getSource() == optionsItem) {
 		optionDialog();
 	    }
@@ -331,6 +357,44 @@ public class DDGUI extends MyJFrame {
         }
     }
 
+    
+    /** Reads a frontier file that may have been saved on an earlier run */
+    public void readFrontier() {
+	JFileChooser fileChooser = new JFileChooser(filedir);
+	fileChooser.setDialogTitle("Open a frontier file");
+
+	int returnVal = fileChooser.showOpenDialog(this);
+	String filepath = "";
+	
+	if (returnVal == JFileChooser.APPROVE_OPTION) {
+	    File file = fileChooser.getSelectedFile();
+	    filepath = file.getPath();
+	    filedir = file.getParentFile();
+
+	    setLabel("Reading sensors and frontiers from file "+ filepath);
+	    
+	    try {
+		FileReader in = new FileReader(file);	    
+		BufferedReader br = new BufferedReader( in );
+		presented =  PresentedFrontier.readFrontier(br);
+		sensors = presented.lastSensorsUsed;
+		in.close();
+		abs.repaint();
+
+		setLabel("Successfully read frontier from "+filepath);
+
+	    } catch (Exception e) {
+		String msg0 = "Error when reading frontier file " + filepath;
+		String msg = msg0 + ":\n" + e.getMessage();
+		setLabel(msg0, msg);
+		e.printStackTrace(System.err);
+		msg += "\nPlease see the standard output for the stack trace";
+		JOptionPane.showMessageDialog(this,msg);
+	    }
+	    
+        }
+    }
+
 
     public void optionDialog() {
 
@@ -348,9 +412,29 @@ public class DDGUI extends MyJFrame {
 	    System.out.println(msg);
 	    JOptionPane.showMessageDialog(this,msg);
 	} else {
-	    NumberFormat secFmt = new DecimalFormat("#.000");
-	    try {
+	    setMenuEnabled(false);
+	    Thread t = new Thread(new ComputeFrontierRunnable());
+	    t.start();
+	}
+    }
 
+    class ComputeFrontierRunnable implements Runnable, dd.engine.Callback {
+
+	private Calendar lastMsgTime = Calendar.getInstance();
+
+	public boolean callback(String msg) {
+	    Calendar now = Calendar.getInstance();
+	    if (now.getTimeInMillis() -  lastMsgTime.getTimeInMillis() > 500) {
+		setLabel("Computing frontier: " + msg);	    
+		lastMsgTime = now;
+	    }
+	    return true;
+	}
+
+
+	public void run() {
+	    try {
+		NumberFormat secFmt = new DecimalFormat("#.000");
 		Test[] actualSensors =  Main.approximateSensors(sensors);
 
 		if (Options.piListIsTrivial()) {
@@ -359,9 +443,14 @@ public class DDGUI extends MyJFrame {
 		    System.out.println("Computing frontier...");
 
 		    Vector<AnnotatedFrontier> otherFrontiers=
-			showSubsetFrontiers? new Vector<AnnotatedFrontier>() : null;
+			showSubsetFrontiers? new Vector<AnnotatedFrontier>() :null;
 
-		    AnnotatedFrontier frontier = Frontier.buildFrontier(actualSensors, otherFrontiers);
+		    FrontierContext context = Options.getZeroPiContext();
+		    context.setCallback(this);
+
+		    AnnotatedFrontier frontier = 
+			Frontier.buildFrontier(actualSensors, context, 
+					       otherFrontiers);
 		    System.out.println("Computed frontier");
 		    if (otherFrontiers!=null) {
 			System.out.println("|others|=" +otherFrontiers.size()); 
@@ -381,11 +470,15 @@ public class DDGUI extends MyJFrame {
 		    presented = new PresentedFrontier(actualSensors, frontier, otherFrontiers);
 		} else { // Build a surface!
 		    double[] piList = Options.getPiList();
+
+		    FrontierContext context = Options.getZeroPiContext();
+		    context.setCallback(this);
+
+
 		    AnnotatedFrontier[] 
 		    surface =
 			Frontier.buildFrontiersMultiPi
-			(piList, actualSensors,
-			 Options.getZeroPiContext(),
+			(piList, actualSensors, context,
 			 Options.getMaxDepth(SensorSet.maxSetSize(actualSensors)) );
 		    //(showSubsetFrontiers? otherFrontiers:null) );
 
@@ -421,13 +514,15 @@ public class DDGUI extends MyJFrame {
 		setLabel("RUN: error when computing frontier: "
 				   + e.getMessage());
 		e.printStackTrace(System.err);
-	    }
-	    
+	    } finally {
+		setMenuEnabled(true);
+	    }	    
 	}
     }
 
 
-    /** Saves the frontier description as a text file */
+    /** Saves the frontier description as a text file.  
+     */
     void saveFrontier() {
 
 	if (presented == null) {
@@ -462,8 +557,8 @@ public class DDGUI extends MyJFrame {
 		    setLabel("Frontier has been written to file "+ filepath);
 		} else {
 		    // FIXME
-		    setLabel("Saving surfaces not supported");
-		    throw new AssertionError("Saving surfaces not supported");
+		    setLabel("Saving surfaces is not supported");
+		    throw new AssertionError("Saving surfaces is not supported");
 		} 
 	    } catch (Exception e) {
 		setLabel("Failed to write frontier to file " + filepath);
@@ -474,43 +569,6 @@ public class DDGUI extends MyJFrame {
         }
     }
 
-    /*
-    void doSaveFrontier(    PresentedData presented, PrintWriter w) {
-	AnnotatedFrontier frontier = null;
-	if (presented instanceof PresentedFrontier) {
-	    frontier = ((PresentedFrontier)presented).frontier;
-	} else {
-	    // FIXME
-	    throw new AssertionError("Saving surface not supported");
-	} 
-	w.println("----------- INPUTS: ----------------------");
-	w.println("A set of " +  presented.lastSensorsUsed.length + " sensors.");
-	for(int i=0; i< presented.lastSensorsUsed.length; i++) {
-	    w.println("Sensor["+(i+1)+"], name="+
-		      presented.lastSensorsUsed[i].getName()+":");
-	    w.println(presented.lastSensorsUsed[i]);
-	}
-	w.println("------------ OPTIONS: ---------------------");
-	w.println("eps=" + frontier.getEps());		
-	w.println("maxDepth=" + frontier.getMaxDepth());		
-	w.println("------------ RUNTIME: ---------------------");
-	w.println("Frontier computation started at  " + 
-		  timeFmt.format(frontier.getStartTime().getTime()));
-	w.println("Frontier computation finished at " + 
-		  timeFmt.format(frontier.getEndTime().getTime()));
-	double msec = frontier.runtimeMsec();
-	w.println("Wall-clock runtime = " + 
-		  (msec < 1000 ?
-		   ""+  msec + " msec":
-		   ""+ (0.001 * msec) + " sec"));
-			   
-
-	w.println("-------------- OUTPUT: ---------------------");
-	//w.println( frontier );
-	frontier.print(w);
-    }
-    */	
-	
     /** Saves the frontier as an SVG image file 
      */
     void writeFrontierImage() {
@@ -546,7 +604,7 @@ public class DDGUI extends MyJFrame {
 	fileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
 
 
-	fileChooser.setDialogTitle("Specify an existing or new directory to save approximated-sensor files into");
+	fileChooser.setDialogTitle("Specify an existing or new DIRECTORY to save approximated-sensor files into");
 
 	int returnVal = fileChooser.showOpenDialog(this);
 	String filepath = "";
@@ -576,10 +634,27 @@ public class DDGUI extends MyJFrame {
 		    return;	  
 		} 
 
+		String names[] = new String[presented.lastSensorsUsed.length];
+
+		{
+		    String confName = "config.txt";
+		    File conf = new File(file, confName);		
+		    FileWriter fw = new FileWriter(conf); 
+		    PrintWriter w = new PrintWriter(fw);
+		    for(int i=0; i<presented.lastSensorsUsed.length;  i++) {
+			Test q=presented.lastSensorsUsed[i];
+			names[i]  = "sensor-" + i+ "-" +q.getName() + ".txt";
+			if (q.getNCopies()>1) w.print(q.getNCopies()+" * ");
+			w.println(names[i]);
+		    }
+		    fw.close();
+		    setLabel("Config file has been written to file "+ 
+			     conf.getPath());
+		}
+
 		for(int i=0; i<presented.lastSensorsUsed.length;  i++) {
 		    Test q=presented.lastSensorsUsed[i];
-		    String name = "sensor-" + i+ "-" +q.getName() + ".txt";
-		    File g = new File(file, name);
+		    File g = new File(file, names[i]);
 		    FileOutputStream w = new FileOutputStream(g); 
 		    q.print(w);
 		    w.close();
@@ -587,8 +662,8 @@ public class DDGUI extends MyJFrame {
 			     q.getName() + "  has been written to file "+ 
 			     g.getPath());
 		    if (q.getOrig() != null) {
-			name = "map-" + i+ "-" +q.getName() + ".txt";
-			g = new File(file, name);
+			String mapName = "map-" + i+ "-" +q.getName() + ".txt";
+			g = new File(file, mapName);
 			w = new FileOutputStream(g); 
 			q.printApproxMap(new PrintStream( w ));
 			w.close();

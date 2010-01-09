@@ -29,6 +29,10 @@ import java.util.regex.*;
     detection rate numbers for the policiesq, but not the actual
     decision trees.
 
+    <p>The Policy class has methods for saving a policy description
+    (serializing). For reading in a policy description
+    (deserializing), you can use {@link
+    PolicyParser#parseTree(CharSequence)}
  */
 
 public class Policy extends PolicySignature {
@@ -70,16 +74,15 @@ public class Policy extends PolicySignature {
 	method computes the costs and detection rates of the new policy
 	based on those of the child policies.
 
-
-	@param _q Root sensor
-	@param Child policies asscociated with the sensor's output
+	@param q Root sensor
+	@param outputs Child policies asscociated with the sensor's output
 	channels. The length of this array must be equal to the number
 	of the sensor's channels.
 
-	@see  Policy(Test _q, PolicySignature[] _outputs, double _c, double _e, double _d)
+	@see #Policy(Test _q, PolicySignature[] _outputs, double _c, double _e, double _d)
      */
     public static Policy constructPolicy(Test q,  PolicySignature[] outputs) {
-	double c = 0, d=0, e=0;
+	double c = q.getCost(), d=0, e=q.getCost();
 	if (q.getM() != outputs.length) throw new IllegalArgumentException("Channel count mismatch: " +  outputs.length + " children policies given for " + q.getM() + " channels of the sensor");
 
 	for(int i=0; i< outputs.length; i++) {
@@ -171,13 +174,6 @@ public class Policy extends PolicySignature {
     }
 
 
-    private int eqCnt(int i) {
-	int j=i+1;
-	while( j<outputs.length && 
-	       outputs[j].equals(outputs[i])) { j++; }
-	return j-i;
-    }
-
     /** Returns a human-readable string fully describing the
 	operations of this policy
 	@param L max string length hint: don't dig too deep... L=0 means "don't restrict"
@@ -186,46 +182,23 @@ public class Policy extends PolicySignature {
 	StringWriter w = new StringWriter();
 	printTreeString(new PrintWriter(w), L,fold); 
 	return w.toString();
-	/*
-	if (q==null) {
-	    // 0 and 1 are the only 2 legal values in trivial policies
-	    return super.toTreeString(L,fold);
-	} else {
-	    StringBuffer b=new StringBuffer( "(" + q.getName() + ":");
-	    for(int i=0; i<outputs.length; i++) {
-		if (L>0 && b.length()>=L) {
-		    b.append(".....");
-		    break;
-		}
-		int remains = (L==0) ? 0 : L-b.length();
-
-		b.append(" ");
-		if (fold) {
-		    // compact format applies to identical subtrees
-		    int cnt = eqCnt(i);
-		    if (cnt>1) {
-			b.append("" + cnt+"*");
-			i += cnt-1;
-		    }
-		} 
-		b.append(outputs[i].toTreeString(remains, fold));
-	    }
-	    b.append(")");
-	    return b.toString();
-	}
-	*/
     }
 
 
     /** Prints a human-readable string fully describing the
-	operations of this policy
+	operations of this policy.
+
+	The flag {@link Options#useSimplifiedSensors} controls whether
+	the policy is described with respect to the original sensors
+	or simplified ones.
 
 	@param L max string length hint. If it's non-zero, it's
 	interpreted as max-length-hint for the output line, and can be
 	used to create manageable, even if incomplete, human-readable
 	description. The value L=0 means "don't abbreviate", and
 	should be used when a complete - even if potentially large -
-	description is desired.
+	description is desired (e.g., in order for you to be able to
+	"deserialize" the policy later on).
 
 	@param fold If true, a more compact format is used whenever
 	adjacent subtrees are identical
@@ -236,6 +209,14 @@ public class Policy extends PolicySignature {
 	    // 0 and 1 are the only 2 legal values in trivial policies
 	    len += super.printTree(w, L,fold);
 	} else {
+	    // do we need to express results in terms of a different,
+	    // "original", sensor?
+	    final boolean useOrig= !Options.useSimplifiedSensors &&
+		q.getOrig()!=null;
+
+	    // space-saving expedient
+	    if (useOrig) fold = true;
+
 	    String s= "(" + q.getName() + ":";
 	    w.print(s); 
 	    len += s.length();
@@ -250,17 +231,27 @@ public class Policy extends PolicySignature {
 		int remains = (L==0) ? 0 : L - len;
 
 		w.print(" "); len++;
-		if (fold) {
-		    // compact format applies to identical subtrees
-		    int cnt = eqCnt(i);
-		    if (cnt>1) {
-			s= "" + cnt+"*";
-			w.print(s); 
-			len += s.length();
 
-			i += cnt-1;
-		    }
+		// Compact format applies to identical subtrees
+		int cnt = fold?  eqCnt(i) : 1;
+
+		// Channel multiplicity, in terms of the actual
+		// (approximated) sensor, or of the original sensor (if
+		// available and requested)
+
+		int mult = useOrig?  q.getOrigChannelCount(i, i+cnt) : cnt;
+
+		if (mult  > 1) {
+		    s= "" + mult+"*";
+		    w.print(s); 
+		    len += s.length();		    
 		}
+
+		if (cnt>1) {
+		    i += cnt-1;
+		}
+
+
 		len += outputs[i].printTree(w, remains, fold);
 	    }
 	    w.print(")"); len++;	    
@@ -275,6 +266,13 @@ public class Policy extends PolicySignature {
      */
     public int printTree(PrintWriter w) {
 	return printTree(w, 0, true);
+    }
+
+    private int eqCnt(int i) {
+	int j=i+1;
+	while( j<outputs.length && 
+	       outputs[j].equals(outputs[i])) { j++; }
+	return j-i;
     }
 
   
@@ -364,9 +362,10 @@ public class Policy extends PolicySignature {
     /** Computes expected total costs of applying all sensors for G and B
      * specimens. This does not include the cost of INSPECT operations.
      * Thus one would expect that 
-
+     <center>
      totalCost = 
      allSensorCosts().g + sum_{i: channel i has INSPECT on it} g[i].
+     </center>
      */
     private GBPair allSensorCost() {
 	double tc = q.getCost();

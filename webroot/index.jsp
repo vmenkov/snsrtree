@@ -176,18 +176,18 @@ called dynamic programming. </p>
 to a technical report. However, intuitively it can be understood this way: 
 <ul>
 
-<li>We reason backwards, from the
-last sensor in the chain toward the initial description of a complete policy. 
+<li>We reason backwards, from the last sensor in the chain toward the
+initial description of a complete policy.
 
-<li>What our software does is to find
-for each individual sensor, and then for all the individual sensors considered
-together, the very best collection of strategies describing all possible costs.
+<li>What our software does is to find for each individual sensor, and
+then for all the individual sensors considered together, the very best
+collection of strategies describing all possible costs.
 </p>
 
-<li>What might happen is that with
-low budget we would prefer using some particular one of the sensors, while with
-a higher budget we would prefer using another, and in between we might have to
-use a mixture as described above in Section 3.1. 
+<li>What might happen is that with low budget we would prefer using
+some particular one of the sensors, while with a higher budget we
+would prefer using another, and in between we might have to use a
+mixture as described above in Section 3.1.
 </ul>
 </p>
 
@@ -251,7 +251,7 @@ Sequential Inspection Strategies.</a> RUTCOR RRR-14-2008.
 <li><a href="readme.html">README</a> - downloading and installing the SNSRTREE Frontier Finder application on your desktop
 <li><a href="http://code.google.com/p/snsrtree/">SNSRTREE</a> on Google Code
 <li><a href="https://sakai.rutgers.edu/portal/site/117506c2-abfb-49c0-0060-cfb1c77bfdff">Project archives on Sakai (members only)</a>
-<li><a href="javadoc/index.html">SNSRTREE API</a> - for use in your own software design
+<li><a href="javadoc/index.html">SNSRTREE API</a> - to use SNSRTREE in your own software design
 </ul>
 
 
