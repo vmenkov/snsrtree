@@ -34,7 +34,19 @@ final public class FrontierContext {
 	in the future if the user changes E via the GUI. */
     PolicySignature INSPECT;
 
-    FrontierContext( boolean _multiPi, double _pi, VSMethod _vs, double _eps) {
+    /** If not null, progress messages can be sent to the caller via it
+     */
+    Callback callback = null;
+
+    public void setCallback(Callback _callback) {
+	callback = _callback;
+    }
+
+    public Callback getCallback() {
+	return callback;
+    }
+
+    public FrontierContext( boolean _multiPi, double _pi, VSMethod _vs, double _eps) {
 	multiPi = _multiPi;
 	pi = _pi;
 	vs = _vs;

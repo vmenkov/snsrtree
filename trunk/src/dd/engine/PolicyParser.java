@@ -35,7 +35,7 @@ public class PolicyParser {
     }
 
     /** Parses a description of the tree, of the kind produced by
-	{@link #printTreeString(PrintWriter)}
+	{@link Policy#printTree(PrintWriter)}
 
 	<p>
 	Syntax:

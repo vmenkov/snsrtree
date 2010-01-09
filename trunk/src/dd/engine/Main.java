@@ -22,6 +22,7 @@ import java.util.regex.*;
     <ul>
     <li>1.7.8 -  (2009-10-22)
     <li>1.7.9 -  (2009-12-15) - more features for Web UI
+    <li>1.8.0 -  (2010-01-09) - I/O methods added, API simplified 
     </ul>
 
 
@@ -29,7 +30,7 @@ import java.util.regex.*;
 
 public class Main  {
 
-    public static final String version = "1.7.9"; // (2009-12-15)
+    public static final String version = "1.8.0"; // (2010-01-09)
     
     public static void main(String[] argv) throws IOException, DDException {
 
@@ -49,7 +50,7 @@ public class Main  {
     /** The top-level input routine. Reads the config file first, and then
         create a sensor for each sensor file mentioned there.
      */
-    public static Test[] readSensorData(String config) throws IOException {
+    public static Test[] readSensorData(String config) throws IOException, DDParseException  {
 
 	int numberFiles = countTitles(config); //number of sensors being used
 	File configFile = new File(config);

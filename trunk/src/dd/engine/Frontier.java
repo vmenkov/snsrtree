@@ -1,8 +1,7 @@
 package dd.engine;
 
-import java.util.Calendar;
+import java.util.*;
 import java.io.*;
-import java.util.Vector;
 
 
 /** A Frontier describes a convex hull over a set of Policies.  It is
@@ -35,6 +34,11 @@ import java.util.Vector;
      universe is very small), or {@link #buildFrontiersMultiPi(double[],
      Test[], FrontierContext, int maxDepth)} for
      non-zero pi (i.e., a non-neglibly-small percentage of "bad" objects).
+
+    <p>The Frontier class has a variety of {@link #print(PrintWriter
+    out, int L) print methods} for saving a frontier description
+    (serializing). To read in teh description of a frontier, you can
+    use {@link dd.gui.PresentedFrontier#readFrontier(BufferedReader)}
 
  */
 
@@ -312,7 +316,7 @@ public class Frontier extends FrontierInfo {
 
       */
     public static AnnotatedFrontier buildFrontier(Test t[]) throws DDException {
-	return  buildFrontier( t, null);
+	return  buildFrontier( t, Options.getZeroPiContext(), null);
     }
 
      /** Runs buildFrontier with the eps value from the options file/cmd line
@@ -321,9 +325,9 @@ public class Frontier extends FrontierInfo {
      @see #buildFrontier(Test[], FrontierContext, int maxDepth, Vector others)
 
       */
-    public static AnnotatedFrontier buildFrontier(Test t[], Vector<AnnotatedFrontier> others) throws DDException {
+    public static AnnotatedFrontier buildFrontier(Test t[], FrontierContext context, Vector<AnnotatedFrontier> others) throws DDException {
 	int maxSetSizeOrig = SensorSet.maxSetSize(t);
-	return buildFrontier(t, Options.getZeroPiContext(), 
+	return buildFrontier(t, context, 
 			     Options.getMaxDepth(maxSetSizeOrig), others);
     }
 
@@ -465,6 +469,12 @@ public class Frontier extends FrontierInfo {
 		savedCnt++;
 		totalSavedCnt ++;
 		if (Options.verbosity>0) System.out.println("Saved frontier["+ss+"]");
+		if (context.callback!=null) {
+		    if (!context.callback.callback("" + totalSavedCnt + " subsets out of " + pow)) {
+			// interruption
+			return null;
+		    }
+		}
 	    } while ( ss.transformToNextSetOfSameSize() ); 
 
 	    System.out.println("Generated and saved "+savedCnt+" " + setSize + "-sensor frontiers");
@@ -550,8 +560,8 @@ public class Frontier extends FrontierInfo {
      */
     public static AnnotatedFrontier[] 
 	buildFrontiersMultiPi(double piList[], Test t[], 
-			      FrontierContext context0, int maxDepth
-	/*      Vector<AnnotatedFrontier> others */) throws DDException {
+			      FrontierContext context0, int maxDepth) 
+	throws DDException {
 
 	final boolean fastPurge = true; //delete old frontiers fast to save mem
 
@@ -690,6 +700,13 @@ public class Frontier extends FrontierInfo {
 		    totalSavedCnt ++;
 		    if (xf[jp][ss.intValue()].context != baseContext) throw new AssertionError();
 		    if (Options.verbosity>0) System.out.println("Saved frontier(pi["+jp+"]="+basePi+")["+ss+"]");
+		    if (context0.callback!=null) {
+			if (!context0.callback.callback("" + totalSavedCnt + " subsets out of " + pow*piList.length)) {
+			    // interruption
+			    return null;
+			}
+		    }
+
 		} //-- loop over pi list
 	    } while ( ss.transformToNextSetOfSameSize() ); 
 
@@ -1022,8 +1039,6 @@ public class Frontier extends FrontierInfo {
 	policies=trim(kept, nKept);
 	System.out.println("VM2: total excluded area=" + totalS);
     }
-
-
 
 
 }

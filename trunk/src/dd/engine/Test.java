@@ -2,6 +2,7 @@ package dd.engine;
 
 import java.io.*;
 import java.util.*;
+import java.util.regex.*;
 
 
 /** An instance of the Test class represents a particular single multi-channel
@@ -301,8 +302,16 @@ public class Test implements Cloneable {
 	return s;
     }
 
-    Test(File f)  throws IOException {
+    Test(File f)  throws IOException, DDParseException {
 	this(f,1);
+    }
+
+    /** An incomplete constructor: no ROC curve. init2() should be
+     * called thereafter.
+     */
+    private Test(String _name, int _nCopies) {
+	name = _name;
+	nCopies = _nCopies;
     }
 
     /** Initializing a Test from an input file of its own 
@@ -311,13 +320,13 @@ public class Test implements Cloneable {
 	lines and channels (countPoints) and checks the form of the file
 	(properPoints)
     */
-    Test(File f, int _nCopies)  throws IOException {
+    Test(File f, int _nCopies)  throws IOException, DDParseException {
+	this(  mkName(f.getName()), _nCopies);
 
-	String fileName =f.getName();
-
-	if (!f.canRead()) throw new IOException("Sensor description file named '"+fileName+"' does not exist or is not readable.\nPlease check sensor file names listed in your config file!");
+	if (!f.canRead()) throw new IOException("Sensor description file named '"+
+						f.getName()+"' does not exist or is not readable.\nPlease check sensor file names listed in your config file!");
 	
-	init( new BufferedReader( new FileReader(f)),f.getName(), _nCopies); 
+	init( new BufferedReader( new FileReader(f)),f.getName()); 
     }
 
     /** Creates a new Test from a description in text format.
@@ -362,14 +371,45 @@ cost: .1
 	
 
      */
-    public Test(BufferedReader br, String supposedFileName, int _nCopies)  throws IOException {
-	init( br,  supposedFileName,  _nCopies);
+    public Test(BufferedReader br, String supposedFileName, int _nCopies)  throws IOException, DDParseException  {	
+	// brief name to label this test
+	this(	 mkName(supposedFileName), _nCopies);
+	init( br,  supposedFileName);
     }
 
-    void init(BufferedReader br, String fileName, int _nCopies)  throws IOException {
+    /** Validates a point of the ROC curve */
+    private void addPair(int i, double nextG, double nextB)
+	throws DDParseException { 
+	double firstG = (i==0) ? 0 : sumGood[i-1];
+	double firstB = (i==0) ? 0 : sumBad[i-1];
 
-	nCopies = _nCopies;
-	name= mkName(fileName); // brief name to label this test
+	sumGood[i] = nextG;
+	sumBad[i] = nextB;
+	double g = nextG-firstG, b = nextB - firstB;
+	    
+	if ( g<0 || b<0) throw new DDParseException("Invalid data in sensor "+name+ ": point["+i+"]("+ nextG + ", " + nextB + ") is not an increment over the previous point");
+
+	if (i==0) {
+	    if (b < g) {
+		throw new DDParseException("Invalid data in sensor "+name+ ": point["+i+"]("+ nextG + ", " + nextB + ") is not an efficient channel assignment; should be flipped!");
+	    }
+	} else {
+	    double backG = (i==1)? 0: sumGood[i-2];
+	    double backB = (i==1)? 0: sumBad[i-2];
+	    
+	    if ( b*(firstG-backG) > g*(firstB-backB) ) {
+		throw new DDParseException("Invalid data in sesnsor "+name+ ": point["+i+"]("+ nextG + ", " + nextB + ") is not an efficient channel assignment: b/g ratio on (b="+b+", g="+g+") is increasing compared to the prev channel  (b="+(firstB-backB)+", g="+(firstG-backG)+")!");
+	    }
+	}
+
+	if (i==sumGood.length -1) {
+	    if (nextG != 1.0 || nextB != 1.0) throw new DDParseException("Invalid data in sesnor  "+name+ ": the last point("+ nextG + ", " + nextB + ")  is not (1,1)");		    
+	}
+	
+    }
+
+    private void init(BufferedReader br, String fileName)  
+	throws  DDParseException, IOException  {
 
 	Vector<String> lines=new Vector<String>();
 
@@ -382,11 +422,10 @@ cost: .1
 	if (lines.size() < 3) {
 	    throw new IOException("Only " + lines.size() + " lines found in the input file " + fileName);
 	}
-	//-------------------------------
+
 	int channels = lines.size() - 2;
 	sumGood = new double[ channels ];
 	sumBad = new double[ channels ];
-	
 	
 	double nextB = 0.0;
 	double nextG = 0.0;
@@ -395,8 +434,6 @@ cost: .1
 	stFirst.nextToken();
 	cost = Double.parseDouble( stFirst.nextToken() );
 	
-	//ASSUMES THERE IS (0,0) AND (1,1) because of method properPoints
-
 	StringTokenizer stO = new StringTokenizer(lines.elementAt(1));
 	
 	nextG = Double.parseDouble(stO.nextToken() ); //assumed to be 0
@@ -405,49 +442,98 @@ cost: .1
 		
 	for(int i = 0; i < channels; i++) 		{
 	    String line = lines.elementAt(i+2);
-	    
 	    StringTokenizer st = new StringTokenizer(line);
-	    
-	    double firstG = nextG;
-	    double firstB = nextB;
-	    
 	    nextG = Double.parseDouble(st.nextToken() );
 	    nextB = Double.parseDouble(st.nextToken() );
-	    
-	    sumGood[i] = nextG;
-	    sumBad[i] = nextB;
-	    
-	    double g = nextG-firstG, b = nextB - firstB;
-	    
-	    if ( g<0 || b<0) throw new IOException("Invalid data in sensor file "+fileName+ ": point["+i+"]("+ nextG + ", " + nextB + ") is not an increment over the previous point");
-
-	    if (i==0) {
-		if (b < g) {
-		    throw new IOException("Invalid data in sensor file "+fileName+ ": point["+i+"]("+ nextG + ", " + nextB + ") is not an efficient channel assignment; should be flipped!");
-		}
-	    } else {
-		double backG = (i==1)? 0: sumGood[i-2];
-		double backB = (i==1)? 0: sumBad[i-2];
-		
-		if ( b*(firstG-backG) > g*(firstB-backB) ) {
-		    throw new IOException("Invalid data in sesnsor file "+fileName+ ": point["+i+"]("+ nextG + ", " + nextB + ") is not an efficient channel assignment: b/g ratio on (b="+b+", g="+g+") is increasing compared to the prev channel  (b="+(firstB-backB)+", g="+(firstG-backG)+")!");
-		}
-	    }
-
-
-	    if (i==channels-1) {
-		if (nextG != 1.0 || nextB != 1.0) throw new IOException("Invalid data in sesnort file "+fileName+ ": End point("+ nextG + ", " + nextB + ")  is not (1,1)");		    
-	    }
-	    
-
+	    addPair( i, nextG, nextB);
 	}
 	br.close();		
+    }
+
+    /** Initializes sensor from a one-line description. Parses
+	something like this: 
+
+	<pre>
+	{SS1g: c=5.3333E-4 ((7.92247E-9 0.050117779) ....	(0.951683168 0.97585535) (1.0 1.0) }
+	</pre>
+    */
+    public static Test parseTest2(String s, String _name, int _nCopies)  throws IOException, DDParseException  {
+	Test t = new Test(_name, _nCopies);
+	t.init2( s);
+	return t;
+    }
+
+    /** Regex (complete with parentheses) which sensor names must match */
+    final public static String idPar = "([A-Za-z_][A-Za-z0-9_]*)";
+    final public static String numPar = "([+\\-]?(?:[0-9]+\\.?|[0-9]*\\.[0-9]+)(?:[+\\-]E[0-9]+)?)";
+
+    private void init2(String s)  throws DDParseException {
+
+	Pattern p = Pattern.compile("\\s*\\{\\s*" + idPar + ":\\s+c=" + numPar + "\\s+\\((.*)\\)+\\s*\\}");
+
+	Matcher m = p.matcher(s);
+	if (!m.matches() || m.group(3)==null)  throw new DDParseException(s, "Can't parse string as {name: c=XXXX (pairs...)}");
+
+	if (!name.equals(m.group(1))) {
+	    throw new DDParseException("Name mismatch: expected " + name + ", found " + m.group(1));
+	}
+
+	cost = Double.parseDouble( m.group(2));
+
+	String w =  m.group(3);
+	w = w.trim();
+
+	String pair = "\\(\\s*" + numPar + "\\s+" + numPar + "\\s*\\)";
+
+				  
+	Pattern pPairs =  Pattern.compile("(\\s*" + pair + ")+\\s*");
+
+
+	m = pPairs.matcher(w);
+	if (!m.matches())   throw new DDParseException(w, "Can't parse as a pair list");
+
+	if (w.charAt(0) != '(' ||w.charAt(w.length()-1) != ')')  throw new AssertionError("where's paren?");
+	
+	w = w.substring(1, w.length()-1);
+	String z[] = w.split("\\)\\s+\\(");
+
+	//	int cnt = m.groupCount();
+	//if (cnt % 3 != 0) throw new AssertionError("Something wrong with our pir Regex: found " + cnt + " groups");
+
+	int channels = z.length;
+
+	//System.out.println("Pairs string is: " + w + ", channels=" + channels);
+
+	sumGood = new double[ channels ];
+	sumBad = new double[ channels ];
+		
+	double nextB = 0.0;
+	double nextG = 0.0;	    
+
+	Pattern pz =  Pattern.compile( "\\s*" + numPar +  "\\s*" + numPar +  "\\s*");
+
+	for(int i=0; i<channels; i++) {
+	    /*
+	    String sp = m.group( 3*i + 1);
+	    String sg = m.group( 3*i + 2);
+	    String sb = m.group( 3*i + 3);
+	    */
+	    m = pz.matcher( z[i]);
+	    if (!m.matches())  throw new AssertionError("Something wrong with pair '"+z[i]+"'");
+	    String sg = m.group( 1);
+	    String sb = m.group( 2);
+
+	    nextG = Double.parseDouble(sg);
+	    nextB = Double.parseDouble(sb);
+	    
+	    addPair( i, nextG, nextB);
+	}
     }
 
 
     /** Prints the description of the sensor in the same format as
 	used in input (i.e., in the constructor {@link
-	#Test(BufferedReader br, String supposedFileName, int _nCopies)
+	#Test(BufferedReader, String supposedFileName, int _nCopies)}
      */
     public void print(PrintWriter out)	{
 	//out.println("there are " + getM() + " channels");
@@ -492,18 +578,32 @@ cost: .1
 	out.flush();
     }
 
+    /** How many channels of the original sensor were mapped to channels
+	(i1, ..., i2-1) of this sensor? 
+     */
+    public int getOrigChannelCount(int i1, int i2) {
+	if (orig==null) {
+	    return i2-i1;
+	} else {
+	    int x = approxMap[i2-1];
+	    if (i1 > 0) x -= approxMap[i1-1];
+	    return x;
+	}
+    }
+
     /** Returns the "original" sensor if this one is an approximation,
-	or null otherwise
+	or null otherwise.
      */
     public Test getOrig() { return orig; }
 
-    /** A human readable description of the sensor */
+    /** A human readable description of the sensor. Includes the cost
+     * and the ROC curve. */
     public String toString() {
 	StringBuffer b = new StringBuffer("{" + name+": c="+getCost()+" (");
 	for(int i = 0; i< getM(); i++)	{
 	    b.append("(" + sumGood[i] + " " + sumBad[i] + ") ");
 	}
-	b.append("}");
+	b.append(")}");
 	return b.toString();
     }
 
