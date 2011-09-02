@@ -30,6 +30,12 @@ Apache Commons libraries: commons-fileupload-1.2.1.jar and
 commons-io-1.4.jar : to compile for the web front end
 </ul>
 
+<p>
+Even if you don't plan to run the web fron end, it is easier to alwsy
+compile the applications in a uniform way, i.e. with tomcat in fact present,
+e.g. in /usr/local
+
+
 <h3>Batik SVG Toolkit</h3>
 <p>
 The Deceptive Detection Policy Frontier Finder uses the Batik SVG Toolkit to
@@ -155,6 +161,30 @@ Once everything is installed, you can run
     ant compile
 </pre>
 in the snsrtree directory.
+
+<h3>Troubleshooting</h3>
+
+<p>
+If compilation fails, run "ant" with the "-verbose" option:
+<pre>
+    ant compile -verbose
+</pre>
+and look at the error messages. For examples, if you have something like this:
+<pre>
+...
+[available] Unable to find /www/snsrtree.rutgers.edu
+[available] Unable to find /www/snsrtree.rutgers.edu
+[available] Unable to find /usr/local/tomcat55/common/lib
+[available] Unable to load class org.apache.catalina.ant.ReloadTask
+
+BUILD FAILED
+/home/vmenkov/dndo/snsrtree/build.xml:231: taskdef class  cannot be found
+...
+</pre>
+It probably means that you don't have Apache Tomcat installed on your
+machine, in any of the expected locations. You could circumvent this
+by creating an "abridged" build.xml, without the "reload" task and the
+"reload" target... or you can do the simple thing and just install Tomcat!
 
 <h2><a name="gui">Running the GUI program</a></h2>
 
