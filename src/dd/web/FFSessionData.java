@@ -81,13 +81,13 @@ public class FFSessionData {
 	initSensorsBlank();
     }
 
-    synchronized void initSensorsAF()   throws WebException, IOException {
+    synchronized void initSensorsAF()   throws WebException, IOException , DDParseException {
 	String names[] = {"sensorA.txt", "sensorB.txt", "sensorC.txt", 
 			  "sensorD.txt", "sensorE.txt", "sensorF.txt"};
 	initSensors( "/WEB-INF/sensors/a/",names);
     }
 
-    synchronized void initSensorsSS()   throws WebException, IOException {
+    synchronized void initSensorsSS()   throws WebException, IOException , DDParseException  {
 	String names[] = {"sensorSS1g.txt", "sensorSS2g.txt", "sensorSS3g.txt", 
 			  "sensorSS4g.txt"};
 	initSensors( "/WEB-INF/sensors/SS/",names);
@@ -100,7 +100,7 @@ public class FFSessionData {
     }
 
     synchronized void initSensors(String prefix, String[] names)
-	throws WebException, IOException {
+	throws WebException, IOException, DDParseException{
 	initSensorsBlank();
 	ServletContext context = session.getServletContext(); 
 	int n = (names.length < maxNS) ? names.length : maxNS;
