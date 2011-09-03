@@ -188,12 +188,14 @@
   <javac srcdir="src" destdir="${local.classes}" debug="on"   target="1.5"
 	 classpath="${compile.classpath}" />
   <echo>    Building a jar file  </echo>
-  <jar destfile="lib/dndo.jar"   basedir="${local.classes}"  />
+  <jar destfile="lib/dndo.jar"   basedir="${local.classes}">
+    <manifest> <!-- file="manifest-data.dat" mode="replace" -->
+      <attribute name="Main-Class" value="dd.gui.DDGUI"/>
+      <attribute name="Class-Path" value=".  ../../batik-1.7/batik.jar"/>	
+    </manifest>
+  </jar>
 </target>
 
-<!-- target name="jar" depends="compile">
-<jar destfile="lib/dndo.jar"   basedir="${local.classes}"  />
-</target -->
 
 <!-- copies our class files, as well as some libraries (such as Apache Commons
      FileUpload to our web application's directory in the Tomcat tree -->
@@ -286,6 +288,7 @@
 </target>
 
 
+
  <!-- zip destfile="../snsrtree.zip" basedir="." >
        includes="snsrtree/**" excludes="snsrtree/classes/**,**/*.bak,**/*.java.orig,**/*~"    / -->
 
@@ -316,6 +319,7 @@
     <copy todir="${dist.home}"  file="/tmp/${dist.war}"/>
     <copy todir="${dist.home}"  file="/tmp/${dist.src}"/>
   </target -->
+
 
 
 </project>

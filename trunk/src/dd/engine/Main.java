@@ -23,6 +23,7 @@ import java.util.regex.*;
     <li>1.7.8 -  (2009-10-22)
     <li>1.7.9 -  (2009-12-15) - more features for Web UI
     <li>1.8.0 -  (2010-01-09) - I/O methods added, API simplified 
+    <li>1.8.1 -  (2011-09-03) - cosmetic
     </ul>
 
 
@@ -30,7 +31,7 @@ import java.util.regex.*;
 
 public class Main  {
 
-    public static final String version = "1.8.0"; // (2010-01-09)
+    public static final String version = "1.8.1"; // (2011-09-03)
     
     public static void main(String[] argv) throws IOException, DDException {
 
