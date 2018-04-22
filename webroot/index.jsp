@@ -3,7 +3,7 @@
 <head>
 <!-- meta http-equiv=Content-Type content="text/html; charset=windows-1252" -->
 <title>SNSR Software</title>
-<link rel="icon" type="image/vnd.microsoft.icon" href="/dd/favicon16.ico">
+<link rel="icon" type="image/vnd.microsoft.icon" href="../dd/favicon16.ico">
 </head>
 
 <body>
@@ -242,8 +242,8 @@ Sequential Inspection Strategies.</a> RUTCOR RRR-14-2008.
 
 <h2><a name="demos">DNDO Demos</a></h2>
 <ol>
-<li><a href="dd/index.html">Simple single-sensor demo</a>
-<li><a href="dd/ff/index.html">Frontier Finder Lite</a> (a preliminary version)
+<li><a href="../dd/demo/demosensorform.jsp">Simple single-sensor demo</a>
+<li><a href="../dd/ff/index.html">Frontier Finder Lite</a> (a preliminary version)
 </ol>
 
 <h2><a name="res">Web Resources</a></h2>

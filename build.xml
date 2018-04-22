@@ -8,6 +8,12 @@
      set to the current working directory.
 -->
 
+<!-- It is expected that compilation takes place in a directory such as 
+~/dndo/snsrtree.git/trunk , with 3rd-party libraries being in
+~/dndo/batik-1.7/*.jar  and ~/dndo/lib/*.jar  
+-->
+
+
 
 <project name="snsrtree" default="compile" basedir=".">
 
@@ -63,7 +69,9 @@
 
   <property name="tomcat.home.rutgers"  value="/www/snsrtree.rutgers.edu" />
  
-  <condition property="tomcat.home" value="${tomcat.home.rutgers}" else="/usr/local/tomcat">
+  <!-- /usr/local/tomcat -->
+
+  <condition property="tomcat.home" value="${tomcat.home.rutgers}" else="/usr/share/tomcat6">
   <available file="${tomcat.home.rutgers}"/>
   </condition>
 
@@ -81,7 +89,8 @@
 
   <property name="app.name"       value="dd"/>
   <property name="deploy.home"    value="${tomcat.home}/webapps/${app.name}"/>
-  <property name="dist.home"      value="${deploy.home}"/>
+  <!-- property name="dist.home"      value="${deploy.home}"/ -->
+  <property name="dist.home"      value="../dist"/>
   <property name="dist.src"       value="${app.name}.jar"/>
   <property name="dist.war"       value="${app.name}.war"/>
   <!-- property name="javadoc.home"   value="${deploy.home}/javadoc"/ -->
@@ -93,7 +102,7 @@
   <!-- Tomcat libraries; for Tomcat 6.* -->
   <property name="tomcat.lib.rutgers"     value="/usr/local/tomcat55/common/lib"/>
 
-  <condition property="tomcat.lib" value="${tomcat.lib.rutgers}" else="/usr/local/tomcat/lib">
+  <condition property="tomcat.lib" value="${tomcat.lib.rutgers}" else="${tomcat.home}/lib">
   <available file="${tomcat.lib.rutgers}" property="tomcat.lib" value="${tomcat.lib.rutgers}"/>
   </condition>
 
@@ -105,10 +114,10 @@
   <property name="local.classes"  value="classes" />
 
    <property name="compilelocal.classpath" 
-     value="../batik-1.7/batik.jar" />
+     value="../../batik-1.7/batik.jar" />
 
    <property name="compile.classpath" 
-     value="${compilelocal.classpath}:${tomcat.lib}/servlet-api.jar:${tomcat.lib}/catalina-ant.jar:lib/commons-fileupload-1.2.1.jar" />
+     value="${compilelocal.classpath}:${tomcat.lib}/servlet-api.jar:${tomcat.lib}/catalina-ant.jar:../../lib/commons-fileupload-1.2.1.jar" />
 
   <!-- Options to pass to JVM, when Java programs are run in auxiliary
   scripts. This may be used to set -Dhttp.proxyHost=... etc. -->
@@ -135,7 +144,7 @@
 -->
 
 <target name="preparelocal">
-  <mkdir  dir="${local.classes}"/>
+  <mkdir  dir="${local.classes}"/>  
 </target>
 
 <target name="prepare">
@@ -185,7 +194,7 @@
 
 <target name="compile" depends="preparelocal">
   <echo>    Compiling Java files  </echo>
-  <javac srcdir="src" destdir="${local.classes}" debug="on"   target="1.5"
+  <javac srcdir="src" destdir="${local.classes}" debug="on"   target="1.6"
 	 classpath="${compile.classpath}" />
   <echo>    Building a jar file  </echo>
   <jar destfile="lib/dndo.jar"   basedir="${local.classes}">
@@ -210,10 +219,10 @@
     <fileset dir="sensors"><include name="**/*.txt"/></fileset>    
   </copy>
   <copy todir="${deploy.lib}">
-    <fileset dir="../batik-1.7/lib"><include name="**/*.jar"/></fileset>    
+    <fileset dir="../../batik-1.7/lib"><include name="**/*.jar"/></fileset>    
   <!-- /copy>
   <copy todir="${deploy.lib}" -->  
-    <fileset dir="lib"><include name="**/*.jar"/></fileset>
+    <fileset dir="../../lib"><include name="**/*.jar"/></fileset>
   </copy>
 
   <echo message="Copying files from web/ to ${deploy.home}" />
@@ -221,8 +230,22 @@
     <fileset dir="web" excludes=".svn" />
   </copy>
 
-  <echo message="Copying files from webroot/ to ${tomcat.deploy.docs}" />
+  <!-- This was the arrangement where we could place files into the
+       (virtual) server's root directory (ca 2010-2017), so that the main page
+       (index.jsp)  would show in 
+  http://snsrtree.rutgers.edu/ -->
+  <!-- echo message="Copying files from webroot/ to ${tomcat.deploy.docs}" />
   <copy todir="${tomcat.deploy.docs}">
+    <fileset dir="webroot" excludes=".svn" />
+  </copy -->
+
+  <!-- This is the arrangement we use in 2018, where all files go into 
+       the into the web application's directory,  so that the main page
+       would show in http://vm.paulbkantor.com:8080/dndo/index.jsp
+   -->
+
+  <echo message="Copying files from webroot/ to ${deploy.home}" />
+  <copy todir="${deploy.home}">
     <fileset dir="webroot" excludes=".svn" />
   </copy>
 
@@ -308,17 +331,19 @@
      that separately.
 -->
 
-  <!-- target name="dist" depends="prepare,compile,sign">
+<target name="dist" depends="prepare,compile,deploy"> <!-- "sign" -->
 
     <delete file="${dist.home}/${dist.src}"/>
     <delete file="${dist.home}/${dist.war}"/>
+    <mkdir  dir="${dist.home}"/>  
 
-    <jar jarfile="/tmp/${dist.src}"      basedir="."/>
+    <jar jarfile="/tmp/${dist.src}"     basedir="."/>
     <jar jarfile="/tmp/${dist.war}"     basedir="${deploy.home}"/>
 
     <copy todir="${dist.home}"  file="/tmp/${dist.war}"/>
     <copy todir="${dist.home}"  file="/tmp/${dist.src}"/>
-  </target -->
+    <echo message="WAR file prepared in ${dist.home}"/>
+</target>
 
 
 

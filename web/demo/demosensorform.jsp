@@ -73,7 +73,7 @@ order of decreasing slope.</p>
 
 <hr>
 <div align=center>
-Back to the <a href="/">Main page</a>
+Back to the <a href="../">Main page</a>
 </div>
 
 

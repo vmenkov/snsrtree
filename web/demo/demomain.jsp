@@ -157,7 +157,7 @@ The green curve, is shown, is from stage 2.
 
 <hr>
 <div align=center>
-Back to the <a href="/">Main page</a>
+Back to the <a href="../">Main page</a>
 </div>
 
 <hr>
